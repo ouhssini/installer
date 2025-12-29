@@ -1,17 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use SoftCortex\Installer\Http\Controllers\WelcomeController;
-use SoftCortex\Installer\Http\Controllers\RequirementsController;
-use SoftCortex\Installer\Http\Controllers\DatabaseController;
-use SoftCortex\Installer\Http\Controllers\LicenseController;
 use SoftCortex\Installer\Http\Controllers\AdminController;
+use SoftCortex\Installer\Http\Controllers\DatabaseController;
 use SoftCortex\Installer\Http\Controllers\FinalizeController;
+use SoftCortex\Installer\Http\Controllers\LicenseController;
+use SoftCortex\Installer\Http\Controllers\RequirementsController;
+use SoftCortex\Installer\Http\Controllers\WelcomeController;
 
 Route::prefix(config('installer.routes.prefix', 'install'))
     ->middleware(config('installer.routes.middleware', ['web', 'installer.redirect']))
     ->group(function () {
-        
+
         // Step 1: Welcome
         Route::get('/', [WelcomeController::class, 'index'])->name('installer.welcome');
         Route::post('/', [WelcomeController::class, 'store'])->name('installer.welcome.store');

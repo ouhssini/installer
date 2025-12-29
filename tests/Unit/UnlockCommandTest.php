@@ -1,13 +1,13 @@
 <?php
 
-use SoftCortex\Installer\Services\InstallerService;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use SoftCortex\Installer\Services\InstallerService;
 
 beforeEach(function () {
     // Create settings table for tests
-    if (!Schema::hasTable('settings')) {
+    if (! Schema::hasTable('settings')) {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
@@ -26,15 +26,15 @@ afterEach(function () {
 
 test('unlock command resets installation state', function () {
     $installer = app(InstallerService::class);
-    
+
     // Mark as installed
     $installer->markAsInstalled();
     expect($installer->isInstalled())->toBeTrue();
-    
+
     // Run unlock command with --force flag
     $this->artisan('installer:unlock', ['--force' => true])
         ->assertSuccessful();
-    
+
     // Verify installation state is reset
     expect($installer->isInstalled())->toBeFalse();
 });

@@ -6,7 +6,7 @@ use SoftCortex\Installer\Services\EnvironmentManager;
 // Feature: envato-installer-wizard, Property 8: Database Connection Testing
 test('database connection is tested before proceeding', function () {
     $dbManager = app(DatabaseManager::class);
-    
+
     // Test with valid credentials (using test database)
     $credentials = [
         'host' => env('DB_HOST', '127.0.0.1'),
@@ -15,7 +15,7 @@ test('database connection is tested before proceeding', function () {
         'username' => env('DB_USERNAME', 'root'),
         'password' => env('DB_PASSWORD', ''),
     ];
-    
+
     try {
         $result = $dbManager->testConnection($credentials);
         expect($result)->toBeTrue();
@@ -27,17 +27,17 @@ test('database connection is tested before proceeding', function () {
 
 test('invalid database credentials throw exception', function () {
     $dbManager = app(DatabaseManager::class);
-    
+
     // Test with invalid credentials
     $credentials = [
-        'host' => 'invalid_host_' . uniqid(),
+        'host' => 'invalid_host_'.uniqid(),
         'port' => '3306',
         'database' => 'invalid_db',
         'username' => 'invalid_user',
         'password' => 'invalid_pass',
     ];
-    
-    expect(fn() => $dbManager->testConnection($credentials))
+
+    expect(fn () => $dbManager->testConnection($credentials))
         ->toThrow(\PDOException::class);
 })->repeat(100);
 
@@ -45,19 +45,19 @@ test('invalid database credentials throw exception', function () {
 test('successful database connection writes configuration and runs migrations', function () {
     $dbManager = app(DatabaseManager::class);
     $envManager = app(EnvironmentManager::class);
-    
+
     // Prepare test credentials
     $credentials = [
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'test_db_' . uniqid(),
+        'database' => 'test_db_'.uniqid(),
         'username' => 'test_user',
         'password' => 'test_pass',
     ];
-    
+
     // Write configuration
     $dbManager->writeConfiguration($credentials);
-    
+
     // Verify configuration was written to environment
     expect($envManager->get('DB_HOST'))->toBe($credentials['host']);
     expect($envManager->get('DB_PORT'))->toBe($credentials['port']);
@@ -69,17 +69,17 @@ test('successful database connection writes configuration and runs migrations', 
 test('database configuration preserves other environment variables', function () {
     $dbManager = app(DatabaseManager::class);
     $envManager = app(EnvironmentManager::class);
-    
+
     // Set some non-database environment variables
     $envManager->setMultiple([
-        'APP_NAME' => 'TestApp_' . uniqid(),
+        'APP_NAME' => 'TestApp_'.uniqid(),
         'APP_ENV' => 'testing',
         'APP_DEBUG' => 'true',
     ]);
-    
+
     $appName = $envManager->get('APP_NAME');
     $appEnv = $envManager->get('APP_ENV');
-    
+
     // Write database configuration
     $credentials = [
         'host' => '127.0.0.1',
@@ -88,9 +88,9 @@ test('database configuration preserves other environment variables', function ()
         'username' => 'test_user',
         'password' => 'test_pass',
     ];
-    
+
     $dbManager->writeConfiguration($credentials);
-    
+
     // Verify non-database variables are preserved
     expect($envManager->get('APP_NAME'))->toBe($appName);
     expect($envManager->get('APP_ENV'))->toBe($appEnv);
@@ -99,13 +99,13 @@ test('database configuration preserves other environment variables', function ()
 
 test('migration results include success status', function () {
     $dbManager = app(DatabaseManager::class);
-    
+
     $result = $dbManager->runMigrations();
-    
+
     expect($result)->toBeArray();
     expect($result)->toHaveKey('success');
     expect($result['success'])->toBeBool();
-    
+
     if ($result['success']) {
         expect($result)->toHaveKey('output');
         expect($result['output'])->toBeArray();

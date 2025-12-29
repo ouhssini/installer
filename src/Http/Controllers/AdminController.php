@@ -4,8 +4,8 @@ namespace SoftCortex\Installer\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use SoftCortex\Installer\Services\InstallerService;
 
@@ -74,7 +74,7 @@ class AdminController extends Controller
             return back()
                 ->withInput($request->except('password', 'password_confirmation'))
                 ->withErrors([
-                    'email' => 'Failed to create admin user: ' . $e->getMessage(),
+                    'email' => 'Failed to create admin user: '.$e->getMessage(),
                 ]);
         }
     }

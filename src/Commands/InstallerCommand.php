@@ -13,9 +13,10 @@ class InstallerCommand extends Command
 
     public function handle(InstallerService $installer): int
     {
-        if (!$this->option('force')) {
-            if (!$this->confirm('This will reset the installation state. Are you sure?')) {
+        if (! $this->option('force')) {
+            if (! $this->confirm('This will reset the installation state. Are you sure?')) {
                 $this->info('Operation cancelled.');
+
                 return self::FAILURE;
             }
         }
@@ -23,7 +24,7 @@ class InstallerCommand extends Command
         $installer->markAsNotInstalled();
 
         $this->info('Installation state has been reset.');
-        $this->info('You can now access the installer at: ' . url('/install'));
+        $this->info('You can now access the installer at: '.url('/install'));
 
         return self::SUCCESS;
     }
