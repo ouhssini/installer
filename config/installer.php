@@ -8,7 +8,7 @@ return [
         'version' => '1.0.0',
         'description' => 'Professional Laravel application with installer wizard',
     ],
-    
+
     // Server requirements
     'requirements' => [
         'php' => '8.2',
@@ -31,7 +31,7 @@ return [
             'bootstrap/cache',
         ],
     ],
-    
+
     // License verification
     'license' => [
         'enabled' => env('LICENSE_ENABLED', true),
@@ -41,14 +41,14 @@ return [
         // Optional: Your Envato item ID for additional validation
         'envato_item_id' => env('ENVATO_ITEM_ID', ''),
     ],
-    
+
     // Routes
     'routes' => [
         'prefix' => 'install',
         'middleware' => ['web', 'installer.redirect'],
         'redirect_after_install' => 'dashboard',
     ],
-    
+
     // Admin role
     'admin' => [
         'role' => 'admin',

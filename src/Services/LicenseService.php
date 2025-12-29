@@ -23,7 +23,7 @@ class LicenseService
     {
         try {
             $personalToken = config('installer.license.envato_personal_token');
-            
+
             if (empty($personalToken)) {
                 return new LicenseVerificationResult(
                     valid: false,
@@ -32,7 +32,7 @@ class LicenseService
             }
 
             // Validate purchase code format (Envato codes are 36 characters with dashes)
-            if (!$this->isValidPurchaseCodeFormat($purchaseCode)) {
+            if (! $this->isValidPurchaseCodeFormat($purchaseCode)) {
                 return new LicenseVerificationResult(
                     valid: false,
                     error: 'Invalid purchase code format. Envato purchase codes should be in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
@@ -42,7 +42,7 @@ class LicenseService
             // Make API request to Envato
             $response = Http::timeout(15)
                 ->withHeaders([
-                    'Authorization' => 'Bearer ' . $personalToken,
+                    'Authorization' => 'Bearer '.$personalToken,
                     'User-Agent' => 'Purchase Code Verification',
                 ])
                 ->get(self::ENVATO_API_URL, [
@@ -68,7 +68,7 @@ class LicenseService
                 );
             }
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('Envato API request failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
@@ -83,7 +83,7 @@ class LicenseService
             $data = $response->json();
 
             // Validate response structure
-            if (!isset($data['item'])) {
+            if (! isset($data['item'])) {
                 Log::error('Invalid Envato API response structure', [
                     'response' => $data,
                 ]);
@@ -128,7 +128,7 @@ class LicenseService
 
             return new LicenseVerificationResult(
                 valid: false,
-                error: 'License verification error: ' . $e->getMessage()
+                error: 'License verification error: '.$e->getMessage()
             );
         }
     }
@@ -150,7 +150,7 @@ class LicenseService
         // Store hashed license reference
         $hash = hash('sha256', $purchaseCode);
         $this->installer->setSetting('license_hash', $hash);
-        
+
         // Store license data (without purchase code)
         $licenseData = [
             'item_name' => $data['item_name'] ?? null,
@@ -161,7 +161,7 @@ class LicenseService
             'item_id' => $data['item_id'] ?? null,
             'verified_at' => now()->toDateTimeString(),
         ];
-        
+
         $this->installer->setSetting('license_data', json_encode($licenseData));
     }
 
@@ -171,11 +171,11 @@ class LicenseService
     public function getLicense(): ?array
     {
         $data = $this->installer->getSetting('license_data');
-        
-        if (!$data) {
+
+        if (! $data) {
             return null;
         }
-        
+
         return json_decode($data, true);
     }
 }

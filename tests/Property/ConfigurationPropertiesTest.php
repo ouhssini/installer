@@ -7,7 +7,7 @@ test('published config values override default values', function () {
     // Set custom config values
     Config::set('installer.product.name', 'Custom App Name');
     Config::set('installer.product.version', '2.0.0');
-    
+
     // Verify custom values are used
     expect(config('installer.product.name'))->toBe('Custom App Name');
     expect(config('installer.product.version'))->toBe('2.0.0');
@@ -21,7 +21,7 @@ test('unpublished config keys use default values', function () {
 
 test('config structure contains all required keys', function () {
     $config = config('installer');
-    
+
     expect($config)->toBeArray();
     expect($config)->toHaveKey('product');
     expect($config)->toHaveKey('requirements');
@@ -32,7 +32,7 @@ test('config structure contains all required keys', function () {
 
 test('product config contains name version and description', function () {
     $product = config('installer.product');
-    
+
     expect($product)->toHaveKey('name');
     expect($product)->toHaveKey('version');
     expect($product)->toHaveKey('description');
@@ -40,18 +40,18 @@ test('product config contains name version and description', function () {
 
 test('requirements config contains php extensions and directories', function () {
     $requirements = config('installer.requirements');
-    
+
     expect($requirements)->toHaveKey('php');
     expect($requirements)->toHaveKey('extensions');
     expect($requirements)->toHaveKey('directories');
-    
+
     expect($requirements['extensions'])->toBeArray();
     expect($requirements['directories'])->toBeArray();
 })->repeat(100);
 
 test('license config contains Envato API settings', function () {
     $license = config('installer.license');
-    
+
     expect($license)->toHaveKey('enabled');
     expect($license)->toHaveKey('envato_personal_token');
     expect($license)->toHaveKey('envato_item_id');
@@ -59,7 +59,7 @@ test('license config contains Envato API settings', function () {
 
 test('routes config contains prefix and middleware', function () {
     $routes = config('installer.routes');
-    
+
     expect($routes)->toHaveKey('prefix');
     expect($routes)->toHaveKey('middleware');
     expect($routes)->toHaveKey('redirect_after_install');

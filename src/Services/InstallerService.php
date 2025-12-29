@@ -2,9 +2,8 @@
 
 namespace SoftCortex\Installer\Services;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class InstallerService
 {
@@ -20,6 +19,7 @@ class InstallerService
     {
         try {
             $value = $this->getSetting('app_installed', 'false');
+
             return $value === 'true';
         } catch (\Exception $e) {
             // If settings table doesn't exist or any error, treat as not installed
@@ -51,6 +51,7 @@ class InstallerService
     {
         try {
             $setting = DB::table('settings')->where('key', $key)->first();
+
             return $setting ? $setting->value : $default;
         } catch (\Exception $e) {
             return $default;
@@ -102,7 +103,7 @@ class InstallerService
     public function completeStep(int $step): void
     {
         $completedSteps = $this->getCompletedSteps();
-        if (!in_array($step, $completedSteps)) {
+        if (! in_array($step, $completedSteps)) {
             $completedSteps[] = $step;
             $this->setSetting('completed_steps', json_encode($completedSteps));
         }
@@ -122,6 +123,7 @@ class InstallerService
     private function getCompletedSteps(): array
     {
         $steps = $this->getSetting('completed_steps', '[]');
+
         return json_decode($steps, true) ?? [];
     }
 
@@ -131,7 +133,7 @@ class InstallerService
     public function finalize(): void
     {
         $this->markAsInstalled();
-        
+
         // Clear all caches
         Artisan::call('cache:clear');
         Artisan::call('config:clear');

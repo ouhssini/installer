@@ -4,8 +4,8 @@ namespace SoftCortex\Installer\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use SoftCortex\Installer\Services\InstallerService;
+use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfInstalled
 {
@@ -20,7 +20,7 @@ class RedirectIfInstalled
     {
         if ($this->installer->isInstalled()) {
             $redirectRoute = config('installer.routes.redirect_after_install', 'dashboard');
-            
+
             // Try to redirect to configured route, fallback to home
             try {
                 return redirect()->route($redirectRoute);

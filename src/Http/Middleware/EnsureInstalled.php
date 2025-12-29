@@ -4,8 +4,8 @@ namespace SoftCortex\Installer\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use SoftCortex\Installer\Services\InstallerService;
+use Symfony\Component\HttpFoundation\Response;
 
 class EnsureInstalled
 {
@@ -24,7 +24,7 @@ class EnsureInstalled
         }
 
         // Check installation status
-        if (!$this->installer->isInstalled()) {
+        if (! $this->installer->isInstalled()) {
             return redirect()->route('installer.welcome');
         }
 

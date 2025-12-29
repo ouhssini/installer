@@ -59,7 +59,7 @@ class LicenseController extends Controller
 
             $result = $this->license->verify($request->purchase_code);
 
-            if (!$result->isValid()) {
+            if (! $result->isValid()) {
                 return back()
                     ->withInput()
                     ->withErrors([

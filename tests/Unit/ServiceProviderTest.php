@@ -1,11 +1,11 @@
 <?php
 
-use SoftCortex\Installer\Services\InstallerService;
-use SoftCortex\Installer\Services\EnvironmentManager;
-use SoftCortex\Installer\Services\DatabaseManager;
-use SoftCortex\Installer\Services\RequirementsChecker;
-use SoftCortex\Installer\Services\LicenseService;
 use Illuminate\Support\Facades\Route;
+use SoftCortex\Installer\Services\DatabaseManager;
+use SoftCortex\Installer\Services\EnvironmentManager;
+use SoftCortex\Installer\Services\InstallerService;
+use SoftCortex\Installer\Services\LicenseService;
+use SoftCortex\Installer\Services\RequirementsChecker;
 
 test('service provider registers all services', function () {
     expect(app(InstallerService::class))->toBeInstanceOf(InstallerService::class);
@@ -18,13 +18,13 @@ test('service provider registers all services', function () {
 test('service provider registers routes', function () {
     $routes = Route::getRoutes();
     $installerRoutes = [];
-    
+
     foreach ($routes as $route) {
         if ($route->getName() && str_starts_with($route->getName(), 'installer.')) {
             $installerRoutes[] = $route->getName();
         }
     }
-    
+
     expect($installerRoutes)->toContain('installer.welcome');
     expect($installerRoutes)->toContain('installer.requirements');
     expect($installerRoutes)->toContain('installer.database');
@@ -52,7 +52,7 @@ test('service provider registers config', function () {
 test('service provider registers middleware aliases', function () {
     $router = app('router');
     $middlewareGroups = $router->getMiddleware();
-    
+
     expect($middlewareGroups)->toHaveKey('installer.redirect');
     expect($middlewareGroups)->toHaveKey('installer.ensure');
 });

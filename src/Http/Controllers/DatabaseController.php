@@ -5,8 +5,8 @@ namespace SoftCortex\Installer\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use SoftCortex\Installer\Services\InstallerService;
 use SoftCortex\Installer\Services\DatabaseManager;
+use SoftCortex\Installer\Services\InstallerService;
 
 class DatabaseController extends Controller
 {
@@ -32,7 +32,7 @@ class DatabaseController extends Controller
 
         try {
             $this->database->testConnection($request->only([
-                'host', 'port', 'database', 'username', 'password'
+                'host', 'port', 'database', 'username', 'password',
             ]));
 
             return response()->json([
@@ -48,7 +48,7 @@ class DatabaseController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Database connection failed: ' . $e->getMessage(),
+                'message' => 'Database connection failed: '.$e->getMessage(),
             ], 422);
         }
     }
@@ -65,7 +65,7 @@ class DatabaseController extends Controller
 
         try {
             $credentials = $request->only([
-                'host', 'port', 'database', 'username', 'password'
+                'host', 'port', 'database', 'username', 'password',
             ]);
 
             // Test connection
@@ -77,11 +77,11 @@ class DatabaseController extends Controller
             // Run migrations
             $result = $this->database->runMigrations();
 
-            if (!$result['success']) {
+            if (! $result['success']) {
                 return back()
                     ->withInput()
                     ->withErrors([
-                        'database' => 'Migration failed: ' . ($result['error'] ?? 'Unknown error'),
+                        'database' => 'Migration failed: '.($result['error'] ?? 'Unknown error'),
                     ]);
             }
 

@@ -2,11 +2,11 @@
 
 namespace SoftCortex\Installer\Services;
 
-use PDO;
-use PDOException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use PDO;
+use PDOException;
 
 class DatabaseManager
 {
@@ -27,7 +27,7 @@ class DatabaseManager
             $password = $credentials['password'] ?? '';
 
             $dsn = "mysql:host={$host};port={$port};dbname={$database}";
-            
+
             $pdo = new PDO($dsn, $username, $password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_TIMEOUT => 5,
@@ -79,15 +79,15 @@ class DatabaseManager
     public function runMigrations(): array
     {
         $output = [];
-        
+
         try {
             // Create settings table first
             $this->createSettingsTable();
-            
+
             // Run all migrations
             Artisan::call('migrate', ['--force' => true]);
             $output[] = Artisan::output();
-            
+
             return [
                 'success' => true,
                 'output' => $output,
@@ -106,7 +106,7 @@ class DatabaseManager
      */
     public function createSettingsTable(): void
     {
-        if (!DB::getSchemaBuilder()->hasTable('settings')) {
+        if (! DB::getSchemaBuilder()->hasTable('settings')) {
             DB::statement('
                 CREATE TABLE settings (
                     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

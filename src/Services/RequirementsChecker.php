@@ -12,7 +12,7 @@ class RequirementsChecker
     public function check(): array
     {
         $requirements = $this->getAllRequirements();
-        
+
         $results = [
             'php' => $this->checkPhpVersion($requirements['php']),
             'extensions' => [],
@@ -24,7 +24,7 @@ class RequirementsChecker
         foreach ($requirements['extensions'] as $extension) {
             $satisfied = $this->checkExtension($extension);
             $results['extensions'][$extension] = ['satisfied' => $satisfied];
-            if (!$satisfied) {
+            if (! $satisfied) {
                 $results['all_satisfied'] = false;
             }
         }
@@ -33,12 +33,12 @@ class RequirementsChecker
         foreach ($requirements['directories'] as $directory) {
             $check = $this->checkDirectory($directory);
             $results['directories'][$directory] = $check;
-            if (!$check['satisfied']) {
+            if (! $check['satisfied']) {
                 $results['all_satisfied'] = false;
             }
         }
 
-        if (!$results['php']['satisfied']) {
+        if (! $results['php']['satisfied']) {
             $results['all_satisfied'] = false;
         }
 

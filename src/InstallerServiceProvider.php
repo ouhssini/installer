@@ -2,16 +2,16 @@
 
 namespace SoftCortex\Installer;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
 use SoftCortex\Installer\Commands\InstallerCommand;
-use SoftCortex\Installer\Services\InstallerService;
-use SoftCortex\Installer\Services\EnvironmentManager;
-use SoftCortex\Installer\Services\DatabaseManager;
-use SoftCortex\Installer\Services\RequirementsChecker;
-use SoftCortex\Installer\Services\LicenseService;
 use SoftCortex\Installer\Http\Middleware\EnsureInstalled;
 use SoftCortex\Installer\Http\Middleware\RedirectIfInstalled;
+use SoftCortex\Installer\Services\DatabaseManager;
+use SoftCortex\Installer\Services\EnvironmentManager;
+use SoftCortex\Installer\Services\InstallerService;
+use SoftCortex\Installer\Services\LicenseService;
+use SoftCortex\Installer\Services\RequirementsChecker;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class InstallerServiceProvider extends PackageServiceProvider
 {
