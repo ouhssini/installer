@@ -84,19 +84,9 @@ ENVATO_ITEM_ID=12345678  # Optional: Your CodeCanyon item ID
 
 ### 2. Middleware Setup
 
-Add the `EnsureInstalled` middleware to `bootstrap/app.php`:
+The installer automatically registers global middleware to protect all routes. When the application is not installed, all requests (including `/`) will redirect to the installer.
 
-```php
-use SoftCortex\Installer\Http\Middleware\EnsureInstalled;
-
-return Application::configure(basePath: dirname(__DIR__))
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
-            EnsureInstalled::class,
-        ]);
-    })
-    ->create();
-```
+No manual middleware configuration is required - it works out of the box!
 
 ### 3. Configuration Options
 

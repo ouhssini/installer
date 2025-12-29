@@ -2,6 +2,24 @@
 
 All notable changes to `magic-installer` will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **BREAKING**: Middleware now registers globally - no manual configuration needed
+  - All routes automatically protected when not installed
+  - Accessing any route (including `/`) redirects to installer
+  - Removed need for manual middleware registration in `bootstrap/app.php`
+
+### Added
+
+- Added database sync after installation completes
+  - Installation data synced to `settings` table when database is available
+  - Hybrid approach: file storage during install, database after
+- Added auto-login after installation
+  - Admin user automatically authenticated after finalization
+  - Seamless transition from installation to application
+
 ## fix DB errors - 2025-12-29
 
 **Full Changelog**: https://github.com/ouhssini/installer/compare/v1.0.1...v1.0.2

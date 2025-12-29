@@ -145,12 +145,62 @@ class InstallerService
     }
 
     /**
+     * Check if database settings table is available
+     */
+    private function isDatabaseAvailable(): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\Schema::hasTable('settings');
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Sync installation data to database settings table
+     */
+    private function syncToDatabase(): void
+    {
+        if (!$this->isDatabaseAvailable()) {
+            return;
+        }
+
+        try {
+            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
+                ['key' => 'app_installed'],
+                [
+                    'value' => 'true',
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+
+            $installationDate = $this->getSetting('installation_date');
+            if ($installationDate) {
+                \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
+                    ['key' => 'installation_date'],
+                    [
+                        'value' => $installationDate,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+            }
+        } catch (\Exception $e) {
+            // Silently fail - file storage is primary during installation
+        }
+    }
+
+    /**
      * Finalize the installation
      */
     public function finalize(): void
     {
         $this->markAsInstalled();
         $this->setSetting('installation_date', now()->toDateTimeString());
+
+        // Sync to database if available
+        $this->syncToDatabase();
 
         // Clear all caches
         Artisan::call('cache:clear');

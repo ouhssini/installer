@@ -61,6 +61,9 @@ class AdminController extends Controller
                 ]);
             }
 
+            // Store admin user ID for auto-login
+            $this->installer->setSetting('admin_user_id', $userId);
+
             $this->installer->completeStep(5);
             $this->installer->setCurrentStep(6);
 

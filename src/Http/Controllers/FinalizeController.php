@@ -22,6 +22,21 @@ class FinalizeController extends Controller
         $this->installer->completeStep(6);
         $this->installer->finalize();
 
+        // Auto-login the created admin user
+        $userId = $this->installer->getSetting('admin_user_id');
+        if ($userId) {
+            try {
+                $userModel = config('auth.providers.users.model', 'App\\Models\\User');
+                $user = $userModel::find($userId);
+                
+                if ($user) {
+                    \Illuminate\Support\Facades\Auth::login($user);
+                }
+            } catch (\Exception $e) {
+                // Silently fail - user can login manually
+            }
+        }
+
         $redirectRoute = config('installer.routes.redirect_after_install', 'dashboard');
 
         try {
