@@ -7,11 +7,11 @@ beforeEach(function () {
     // Clean up any existing installer files
     $installedFile = storage_path('app/.installed');
     $settingsFile = storage_path('app/installer-settings.json');
-    
+
     if (File::exists($installedFile)) {
         File::delete($installedFile);
     }
-    
+
     if (File::exists($settingsFile)) {
         File::delete($settingsFile);
     }
@@ -21,11 +21,11 @@ afterEach(function () {
     // Clean up installer files
     $installedFile = storage_path('app/.installed');
     $settingsFile = storage_path('app/installer-settings.json');
-    
+
     if (File::exists($installedFile)) {
         File::delete($installedFile);
     }
-    
+
     if (File::exists($settingsFile)) {
         File::delete($settingsFile);
     }
@@ -52,11 +52,11 @@ test('finalization sets app_installed to true and clears caches', function () {
     // Verify .installed file exists
     $installedFile = storage_path('app/.installed');
     expect(File::exists($installedFile))->toBeTrue();
-    
+
     // Verify settings are persisted in JSON file
     $settingsFile = storage_path('app/installer-settings.json');
     expect(File::exists($settingsFile))->toBeTrue();
-    
+
     $settings = json_decode(File::get($settingsFile), true);
     expect($settings)->toHaveKey('installation_date');
 })->repeat(100);

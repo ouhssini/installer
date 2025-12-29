@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 class InstallerService
 {
     private string $installedFilePath;
+
     private string $settingsFilePath;
 
     public function __construct(
@@ -53,6 +54,7 @@ class InstallerService
     public function getSetting(string $key, mixed $default = null): mixed
     {
         $settings = $this->loadSettings();
+
         return $settings[$key] ?? $default;
     }
 
@@ -72,6 +74,7 @@ class InstallerService
     public function hasSetting(string $key): bool
     {
         $settings = $this->loadSettings();
+
         return isset($settings[$key]);
     }
 
@@ -80,11 +83,12 @@ class InstallerService
      */
     private function loadSettings(): array
     {
-        if (!File::exists($this->settingsFilePath)) {
+        if (! File::exists($this->settingsFilePath)) {
             return [];
         }
 
         $content = File::get($this->settingsFilePath);
+
         return json_decode($content, true) ?? [];
     }
 
@@ -118,7 +122,7 @@ class InstallerService
     public function completeStep(int $step): void
     {
         $completedSteps = $this->getCompletedSteps();
-        if (!in_array($step, $completedSteps)) {
+        if (! in_array($step, $completedSteps)) {
             $completedSteps[] = $step;
             $this->setSetting('completed_steps', $completedSteps);
         }
@@ -147,7 +151,7 @@ class InstallerService
     {
         $this->markAsInstalled();
         $this->setSetting('installation_date', now()->toDateTimeString());
-        
+
         // Clear all caches
         Artisan::call('cache:clear');
         Artisan::call('config:clear');
@@ -162,7 +166,7 @@ class InstallerService
         if (File::exists($this->installedFilePath)) {
             File::delete($this->installedFilePath);
         }
-        
+
         if (File::exists($this->settingsFilePath)) {
             File::delete($this->settingsFilePath);
         }

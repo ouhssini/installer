@@ -9,11 +9,11 @@ beforeEach(function () {
     // Clean up any existing installer files
     $installedFile = storage_path('app/.installed');
     $settingsFile = storage_path('app/installer-settings.json');
-    
+
     if (File::exists($installedFile)) {
         File::delete($installedFile);
     }
-    
+
     if (File::exists($settingsFile)) {
         File::delete($settingsFile);
     }
@@ -27,11 +27,11 @@ afterEach(function () {
     // Clean up installer files
     $installedFile = storage_path('app/.installed');
     $settingsFile = storage_path('app/installer-settings.json');
-    
+
     if (File::exists($installedFile)) {
         File::delete($installedFile);
     }
-    
+
     if (File::exists($settingsFile)) {
         File::delete($settingsFile);
     }
@@ -152,14 +152,14 @@ test('license verification never stores Envato API token in application', functi
     // Check settings file - should not contain API token patterns
     $settingsFile = storage_path('app/installer-settings.json');
     expect(File::exists($settingsFile))->toBeTrue();
-    
+
     $settingsContent = File::get($settingsFile);
     $settings = json_decode($settingsContent, true);
 
     // Check for common token patterns in all settings
     foreach ($settings as $key => $value) {
         $valueStr = is_string($value) ? $value : json_encode($value);
-        
+
         // Check for common token patterns
         expect($valueStr)->not->toContain('Bearer');
         expect($valueStr)->not->toContain('test-token');

@@ -11,11 +11,11 @@ beforeEach(function () {
     // Clean up any existing installer files
     $installedFile = storage_path('app/.installed');
     $settingsFile = storage_path('app/installer-settings.json');
-    
+
     if (File::exists($installedFile)) {
         File::delete($installedFile);
     }
-    
+
     if (File::exists($settingsFile)) {
         File::delete($settingsFile);
     }
@@ -42,11 +42,11 @@ afterEach(function () {
     // Clean up installer files
     $installedFile = storage_path('app/.installed');
     $settingsFile = storage_path('app/installer-settings.json');
-    
+
     if (File::exists($installedFile)) {
         File::delete($installedFile);
     }
-    
+
     if (File::exists($settingsFile)) {
         File::delete($settingsFile);
     }
