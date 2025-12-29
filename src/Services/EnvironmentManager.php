@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 class EnvironmentManager
 {
     private string $envPath;
+
     private string $envExamplePath;
 
     public function __construct()
@@ -26,9 +27,9 @@ class EnvironmentManager
         }
 
         // Check if .env.example exists
-        if (!File::exists($this->envExamplePath)) {
+        if (! File::exists($this->envExamplePath)) {
             // Try to use package's .env.example
-            $packageEnvExample = __DIR__ . '/../../.env.example';
+            $packageEnvExample = __DIR__.'/../../.env.example';
             if (File::exists($packageEnvExample)) {
                 $this->envExamplePath = $packageEnvExample;
             } else {
@@ -39,6 +40,7 @@ class EnvironmentManager
         // Copy .env.example to .env
         try {
             File::copy($this->envExamplePath, $this->envPath);
+
             return true;
         } catch (\Exception $e) {
             return false;
@@ -50,8 +52,9 @@ class EnvironmentManager
      */
     public function generateAppKey(): string
     {
-        $key = 'base64:' . base64_encode(random_bytes(32));
+        $key = 'base64:'.base64_encode(random_bytes(32));
         $this->set('APP_KEY', $key);
+
         return $key;
     }
 

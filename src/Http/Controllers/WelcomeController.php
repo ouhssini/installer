@@ -25,12 +25,12 @@ class WelcomeController extends Controller
     public function store(Request $request)
     {
         // Initialize .env from .env.example if it doesn't exist
-        if (!$this->environment->envFileExists()) {
+        if (! $this->environment->envFileExists()) {
             $initialized = $this->environment->initializeFromExample();
-            
-            if (!$initialized) {
+
+            if (! $initialized) {
                 return back()->withErrors([
-                    'env' => 'Failed to create .env file. Please ensure .env.example exists and is readable.'
+                    'env' => 'Failed to create .env file. Please ensure .env.example exists and is readable.',
                 ]);
             }
 
