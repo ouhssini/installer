@@ -1,27 +1,34 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
 use SoftCortex\Installer\Services\InstallerService;
 
 beforeEach(function () {
-    // Create settings table for tests
-    if (! Schema::hasTable('settings')) {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
-            $table->string('key')->unique();
-            $table->text('value')->nullable();
-            $table->timestamps();
-        });
+    // Clean up any existing installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 });
 
 afterEach(function () {
-    // Clean up
-    if (Schema::hasTable('settings')) {
-        DB::table('settings')->truncate();
+    // Clean up installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 });
 

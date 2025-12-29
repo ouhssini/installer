@@ -1,26 +1,33 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
 use SoftCortex\Installer\Services\InstallerService;
 
 beforeEach(function () {
-    // Create settings table for tests
-    if (! Schema::hasTable('settings')) {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
-            $table->string('key')->unique();
-            $table->text('value')->nullable();
-            $table->timestamps();
-        });
+    // Clean up any existing installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 });
 
 afterEach(function () {
-    // Clean up
-    if (Schema::hasTable('settings')) {
-        DB::table('settings')->truncate();
+    // Clean up installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 });
 
@@ -42,10 +49,16 @@ test('finalization sets app_installed to true and clears caches', function () {
     $installationDate = $installer->getSetting('installation_date');
     expect($installationDate)->not->toBeNull();
 
-    // Verify setting is persisted in database
-    $setting = DB::table('settings')->where('key', 'app_installed')->first();
-    expect($setting)->not->toBeNull();
-    expect($setting->value)->toBe('true');
+    // Verify .installed file exists
+    $installedFile = storage_path('app/.installed');
+    expect(File::exists($installedFile))->toBeTrue();
+    
+    // Verify settings are persisted in JSON file
+    $settingsFile = storage_path('app/installer-settings.json');
+    expect(File::exists($settingsFile))->toBeTrue();
+    
+    $settings = json_decode(File::get($settingsFile), true);
+    expect($settings)->toHaveKey('installation_date');
 })->repeat(100);
 
 test('finalization can be called multiple times safely', function () {

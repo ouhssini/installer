@@ -3,34 +3,27 @@
 namespace SoftCortex\Installer\Services;
 
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
 
 class InstallerService
 {
+    private string $installedFilePath;
+    private string $settingsFilePath;
+
     public function __construct(
         private DatabaseManager $database,
         private EnvironmentManager $environment
-    ) {}
+    ) {
+        $this->installedFilePath = storage_path('app/.installed');
+        $this->settingsFilePath = storage_path('app/installer-settings.json');
+    }
 
     /**
      * Check if the application is installed
      */
     public function isInstalled(): bool
     {
-        try {
-            // First check if settings table exists
-            if (!$this->settingsTableExists()) {
-                return false;
-            }
-            
-            $value = $this->getSetting('app_installed', 'false');
-
-            return $value === 'true';
-        } catch (\Exception $e) {
-            // If settings table doesn't exist or any error, treat as not installed
-            return false;
-        }
+        return File::exists($this->installedFilePath);
     }
 
     /**
@@ -38,8 +31,10 @@ class InstallerService
      */
     public function markAsInstalled(): void
     {
-        $this->setSetting('app_installed', 'true');
-        $this->setSetting('installation_date', now()->toDateTimeString());
+        File::put($this->installedFilePath, json_encode([
+            'installed' => true,
+            'installed_at' => now()->toDateTimeString(),
+        ]));
     }
 
     /**
@@ -47,7 +42,9 @@ class InstallerService
      */
     public function markAsNotInstalled(): void
     {
-        $this->setSetting('app_installed', 'false');
+        if (File::exists($this->installedFilePath)) {
+            File::delete($this->installedFilePath);
+        }
     }
 
     /**
@@ -55,17 +52,8 @@ class InstallerService
      */
     public function getSetting(string $key, mixed $default = null): mixed
     {
-        try {
-            if (!$this->settingsTableExists()) {
-                return $default;
-            }
-            
-            $setting = DB::table('settings')->where('key', $key)->first();
-
-            return $setting ? $setting->value : $default;
-        } catch (\Exception $e) {
-            return $default;
-        }
+        $settings = $this->loadSettings();
+        return $settings[$key] ?? $default;
     }
 
     /**
@@ -73,10 +61,9 @@ class InstallerService
      */
     public function setSetting(string $key, mixed $value): void
     {
-        DB::table('settings')->updateOrInsert(
-            ['key' => $key],
-            ['value' => $value, 'updated_at' => now()]
-        );
+        $settings = $this->loadSettings();
+        $settings[$key] = $value;
+        $this->saveSettings($settings);
     }
 
     /**
@@ -84,28 +71,29 @@ class InstallerService
      */
     public function hasSetting(string $key): bool
     {
-        try {
-            if (!$this->settingsTableExists()) {
-                return false;
-            }
-            
-            return DB::table('settings')->where('key', $key)->exists();
-        } catch (\Exception $e) {
-            return false;
-        }
+        $settings = $this->loadSettings();
+        return isset($settings[$key]);
     }
 
     /**
-     * Check if the settings table exists
+     * Load settings from file
      */
-    private function settingsTableExists(): bool
+    private function loadSettings(): array
     {
-        try {
-            return Schema::hasTable('settings');
-        } catch (\Exception $e) {
-            // If we can't check (e.g., no database connection), return false
-            return false;
+        if (!File::exists($this->settingsFilePath)) {
+            return [];
         }
+
+        $content = File::get($this->settingsFilePath);
+        return json_decode($content, true) ?? [];
+    }
+
+    /**
+     * Save settings to file
+     */
+    private function saveSettings(array $settings): void
+    {
+        File::put($this->settingsFilePath, json_encode($settings, JSON_PRETTY_PRINT));
     }
 
     /**
@@ -121,7 +109,7 @@ class InstallerService
      */
     public function setCurrentStep(int $step): void
     {
-        $this->setSetting('current_step', (string) $step);
+        $this->setSetting('current_step', $step);
     }
 
     /**
@@ -130,9 +118,9 @@ class InstallerService
     public function completeStep(int $step): void
     {
         $completedSteps = $this->getCompletedSteps();
-        if (! in_array($step, $completedSteps)) {
+        if (!in_array($step, $completedSteps)) {
             $completedSteps[] = $step;
-            $this->setSetting('completed_steps', json_encode($completedSteps));
+            $this->setSetting('completed_steps', $completedSteps);
         }
     }
 
@@ -149,9 +137,7 @@ class InstallerService
      */
     private function getCompletedSteps(): array
     {
-        $steps = $this->getSetting('completed_steps', '[]');
-
-        return json_decode($steps, true) ?? [];
+        return $this->getSetting('completed_steps', []);
     }
 
     /**
@@ -160,10 +146,25 @@ class InstallerService
     public function finalize(): void
     {
         $this->markAsInstalled();
-
+        $this->setSetting('installation_date', now()->toDateTimeString());
+        
         // Clear all caches
         Artisan::call('cache:clear');
         Artisan::call('config:clear');
         Artisan::call('view:clear');
+    }
+
+    /**
+     * Clear all installer data
+     */
+    public function clearInstallerData(): void
+    {
+        if (File::exists($this->installedFilePath)) {
+            File::delete($this->installedFilePath);
+        }
+        
+        if (File::exists($this->settingsFilePath)) {
+            File::delete($this->settingsFilePath);
+        }
     }
 }

@@ -21,7 +21,7 @@ class InstallerCommand extends Command
             }
         }
 
-        $installer->markAsNotInstalled();
+        $installer->clearInstallerData();
 
         $this->info('Installation state has been reset.');
         $this->info('You can now access the installer at: '.url('/install'));

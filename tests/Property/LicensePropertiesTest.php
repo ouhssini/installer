@@ -1,21 +1,21 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Schema;
 use SoftCortex\Installer\Services\InstallerService;
 use SoftCortex\Installer\Services\LicenseService;
 
 beforeEach(function () {
-    // Create settings table for tests
-    if (! Schema::hasTable('settings')) {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
-            $table->string('key')->unique();
-            $table->text('value')->nullable();
-            $table->timestamps();
-        });
+    // Clean up any existing installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 
     // Set test configuration for Envato API
@@ -24,9 +24,16 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-    // Clean up
-    if (Schema::hasTable('settings')) {
-        DB::table('settings')->truncate();
+    // Clean up installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 });
 
@@ -142,21 +149,28 @@ test('license verification never stores Envato API token in application', functi
 
     $licenseService->verify($purchaseCode);
 
-    // Check all settings - none should contain API token patterns
-    $allSettings = DB::table('settings')->get();
+    // Check settings file - should not contain API token patterns
+    $settingsFile = storage_path('app/installer-settings.json');
+    expect(File::exists($settingsFile))->toBeTrue();
+    
+    $settingsContent = File::get($settingsFile);
+    $settings = json_decode($settingsContent, true);
 
-    foreach ($allSettings as $setting) {
+    // Check for common token patterns in all settings
+    foreach ($settings as $key => $value) {
+        $valueStr = is_string($value) ? $value : json_encode($value);
+        
         // Check for common token patterns
-        expect($setting->value)->not->toContain('Bearer');
-        expect($setting->value)->not->toContain('test-token');
-        expect($setting->value)->not->toContain('api_key');
-        expect($setting->value)->not->toContain('envato_token');
-        expect($setting->value)->not->toContain('personal_token');
+        expect($valueStr)->not->toContain('Bearer');
+        expect($valueStr)->not->toContain('test-token');
+        expect($valueStr)->not->toContain('api_key');
+        expect($valueStr)->not->toContain('envato_token');
+        expect($valueStr)->not->toContain('personal_token');
 
         // Verify it's not the purchase code (only hash should be stored)
-        if ($setting->key === 'license_hash') {
-            expect($setting->value)->not->toBe($purchaseCode);
-            expect(strlen($setting->value))->toBe(64); // SHA-256 hash length
+        if ($key === 'license_hash') {
+            expect($value)->not->toBe($purchaseCode);
+            expect(strlen($value))->toBe(64); // SHA-256 hash length
         }
     }
 })->repeat(100);

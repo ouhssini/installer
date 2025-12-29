@@ -1,26 +1,33 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
 use SoftCortex\Installer\Services\InstallerService;
 
 beforeEach(function () {
-    // Create settings table for tests
-    if (! Schema::hasTable('settings')) {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
-            $table->string('key')->unique();
-            $table->text('value')->nullable();
-            $table->timestamps();
-        });
+    // Clean up any existing installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 });
 
 afterEach(function () {
-    // Clean up settings table
-    if (Schema::hasTable('settings')) {
-        DB::table('settings')->truncate();
+    // Clean up installer files
+    $installedFile = storage_path('app/.installed');
+    $settingsFile = storage_path('app/installer-settings.json');
+    
+    if (File::exists($installedFile)) {
+        File::delete($installedFile);
+    }
+    
+    if (File::exists($settingsFile)) {
+        File::delete($settingsFile);
     }
 });
 
@@ -37,10 +44,8 @@ test('installation completion sets app_installed to true and subsequent checks r
     // Should now be installed
     expect($installer->isInstalled())->toBeTrue();
 
-    // Verify in database
-    $setting = DB::table('settings')->where('key', 'app_installed')->first();
-    expect($setting)->not->toBeNull();
-    expect($setting->value)->toBe('true');
+    // Verify file exists
+    expect(File::exists(storage_path('app/.installed')))->toBeTrue();
 
     // Create new instance to verify persistence
     $newInstaller = app(InstallerService::class);
@@ -58,10 +63,8 @@ test('marking as not installed sets app_installed to false', function () {
     $installer->markAsNotInstalled();
     expect($installer->isInstalled())->toBeFalse();
 
-    // Verify in database
-    $setting = DB::table('settings')->where('key', 'app_installed')->first();
-    expect($setting)->not->toBeNull();
-    expect($setting->value)->toBe('false');
+    // Verify file is deleted
+    expect(File::exists(storage_path('app/.installed')))->toBeFalse();
 })->repeat(100);
 
 test('installation state persists across multiple service instances', function () {
@@ -112,14 +115,13 @@ test('unlock command sets app_installed to false', function () {
     $installer->markAsInstalled();
     expect($installer->isInstalled())->toBeTrue();
 
-    // Mark as not installed (simulating unlock command)
-    $installer->markAsNotInstalled();
+    // Clear installer data (simulating unlock command)
+    $installer->clearInstallerData();
 
     // Verify state is reset
     expect($installer->isInstalled())->toBeFalse();
 
-    // Verify in database
-    $setting = DB::table('settings')->where('key', 'app_installed')->first();
-    expect($setting)->not->toBeNull();
-    expect($setting->value)->toBe('false');
+    // Verify files are deleted
+    expect(File::exists(storage_path('app/.installed')))->toBeFalse();
+    expect(File::exists(storage_path('app/installer-settings.json')))->toBeFalse();
 })->repeat(100);

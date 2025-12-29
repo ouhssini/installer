@@ -22,6 +22,7 @@ A professional WordPress-like installer wizard for Laravel 11+ applications with
 - PHP 8.2 or higher
 - Laravel 11 or 12
 - Composer
+- Writable `storage/app` directory
 - MySQL/PostgreSQL/SQLite database
 
 ## 📦 Installation
@@ -32,19 +33,14 @@ Install the package via Composer:
 composer require softcortex/magic-installer
 ```
 
+> **Note**: The installer uses file-based storage (`storage/app/.installed` and `storage/app/installer-settings.json`) and does NOT require database setup before running. This means it works immediately after `composer require` without any database configuration.
+
 ### Publish Assets
 
 Publish the configuration file:
 
 ```bash
 php artisan vendor:publish --tag="installer-config"
-```
-
-Publish and run the migration:
-
-```bash
-php artisan vendor:publish --tag="installer-migrations"
-php artisan migrate
 ```
 
 Optionally, publish the views for customization:
@@ -60,6 +56,15 @@ php artisan vendor:publish --provider="SoftCortex\Installer\InstallerServiceProv
 ```
 
 ## ⚙️ Configuration
+
+### Storage
+
+The installer uses file-based storage to avoid database dependency issues:
+
+- **Installation Status**: `storage/app/.installed`
+- **Settings**: `storage/app/installer-settings.json`
+
+This approach ensures the installer works before database configuration, eliminating the chicken-and-egg problem.
 
 ### 1. Envato Personal Token Setup
 
@@ -200,10 +205,11 @@ The installer uses TailwindCSS. Customize by:
 
 ### Data Storage
 
-**What's stored:**
+**File-based storage:**
+- ✅ Installation status in `storage/app/.installed`
+- ✅ Settings in `storage/app/installer-settings.json`
 - ✅ SHA-256 hash of purchase code
 - ✅ License metadata (item name, buyer, dates)
-- ✅ Installation status
 
 **Never stored:**
 - ❌ Envato Personal Token
@@ -218,7 +224,8 @@ The installer uses TailwindCSS. Customize by:
 | "License verification failed: 401" | Token expired - create new one at [build.envato.com](https://build.envato.com/create-token/) |
 | "Purchase code not found" | Verify code is correct in Envato |
 | Database connection failed | Check credentials, server status, firewall |
-| Permission errors | Run: `chmod -R 775 storage bootstrap/cache` |
+| Permission errors | Ensure `storage/app` directory is writable: `chmod -R 775 storage` |
+| "Settings table not found" | This error should not occur with v1.1.0+ (uses file storage) |
 
 ## 🧪 Testing
 
