@@ -35,12 +35,20 @@ composer require softcortex/magic-installer
 
 > **Note**: The installer uses file-based storage (`storage/app/.installed` and `storage/app/installer-settings.json`) and does NOT require database setup before running. This means it works immediately after `composer require` without any database configuration.
 
+> **Environment Setup**: The installer will automatically create a `.env` file from `.env.example` and generate a new `APP_KEY` during the first step. No manual `.env` setup is required!
+
 ### Publish Assets
 
 Publish the configuration file:
 
 ```bash
 php artisan vendor:publish --tag="installer-config"
+```
+
+Optionally, publish the `.env.example` file:
+
+```bash
+php artisan vendor:publish --tag="installer-env"
 ```
 
 Optionally, publish the views for customization:

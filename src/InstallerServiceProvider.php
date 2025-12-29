@@ -24,6 +24,11 @@ class InstallerServiceProvider extends PackageServiceProvider
             ->hasRoute('installer')
             ->hasMigration('create_settings_table')
             ->hasCommand(InstallerCommand::class);
+
+        // Publish .env.example
+        $this->publishes([
+            __DIR__.'/../.env.example' => base_path('.env.example'),
+        ], 'installer-env');
     }
 
     public function packageRegistered(): void

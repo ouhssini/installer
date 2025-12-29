@@ -2,6 +2,27 @@
 
 All notable changes to `magic-installer` will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Added automatic `.env` file initialization from `.env.example`
+  - Installer creates `.env` from `.env.example` if it doesn't exist
+  - Automatically generates new `APP_KEY` during first step
+  - Clears config/route/cache after initialization
+  - No manual `.env` setup required
+- Added `.env.example` with non-database queue/session drivers
+  - Uses `file` for session driver (not database)
+  - Uses `sync` for queue driver (not database)
+  - Ready to use without database configuration
+- Added `initializeFromExample()` method to EnvironmentManager
+- Added `generateAppKey()` method to EnvironmentManager
+- Added `envFileExists()` method to EnvironmentManager
+
+### Changed
+
+- Updated WelcomeController to handle `.env` initialization on first step
+
 ## v1.1.0 - 2025-12-29
 
 ### Changelog

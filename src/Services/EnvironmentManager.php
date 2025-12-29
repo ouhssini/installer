@@ -7,10 +7,60 @@ use Illuminate\Support\Facades\File;
 class EnvironmentManager
 {
     private string $envPath;
+    private string $envExamplePath;
 
     public function __construct()
     {
         $this->envPath = base_path('.env');
+        $this->envExamplePath = base_path('.env.example');
+    }
+
+    /**
+     * Initialize .env file from .env.example if it doesn't exist
+     */
+    public function initializeFromExample(): bool
+    {
+        // If .env already exists, don't overwrite
+        if (File::exists($this->envPath)) {
+            return true;
+        }
+
+        // Check if .env.example exists
+        if (!File::exists($this->envExamplePath)) {
+            // Try to use package's .env.example
+            $packageEnvExample = __DIR__ . '/../../.env.example';
+            if (File::exists($packageEnvExample)) {
+                $this->envExamplePath = $packageEnvExample;
+            } else {
+                return false;
+            }
+        }
+
+        // Copy .env.example to .env
+        try {
+            File::copy($this->envExamplePath, $this->envPath);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Generate and set a new application key
+     */
+    public function generateAppKey(): string
+    {
+        $key = 'base64:' . base64_encode(random_bytes(32));
+        $this->set('APP_KEY', $key);
+        return $key;
+    }
+
+    /**
+     * Check if .env file exists
+     */
+    public function envFileExists(): bool
+    {
+        return File::exists($this->envPath);
     }
 
     /**
