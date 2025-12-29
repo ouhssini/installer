@@ -2,7 +2,9 @@
 
 All notable changes to `magic-installer` will be documented in this file.
 
-## [Unreleased]
+## v1.0.1 fix the settings_table_access_error - 2025-12-29
+
+**Full Changelog**: https://github.com/ouhssini/installer/compare/v1.0.0...v1.0.1
 
 ### Changed
 - **BREAKING**: Migrated from database-based storage to file-based storage for installer state
