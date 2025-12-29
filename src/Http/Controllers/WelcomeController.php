@@ -50,6 +50,6 @@ class WelcomeController extends Controller
         $this->installer->completeStep(1);
         $this->installer->setCurrentStep(2);
 
-        return redirect()->route('installer.requirements');
+        return redirect()->route('installer.app-config');
     }
 }

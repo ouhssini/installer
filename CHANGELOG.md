@@ -6,6 +6,31 @@ All notable changes to `magic-installer` will be documented in this file.
 
 ### Added
 
+- Added new "App Configuration" step in installer
+  - Configure APP_NAME, APP_ENV, APP_DEBUG, APP_URL, APP_TIMEZONE, APP_LOCALE
+  - Auto-detects available languages from lang directory
+  - Supports both folder-based (en/, fr/) and JSON-based (en.json) locales
+  - Provides 40+ common timezones
+  - Toggle switch for debug mode
+  - Environment selection (local, development, staging, production)
+  - Step 2 of 7 in installation flow
+- Added AppConfigController with locale and timezone detection
+- Added app-config.blade.php view with modern UI
+
+### Changed
+
+- Updated installation flow to 7 steps (was 6)
+  - Step 1: Welcome
+  - Step 2: App Configuration (NEW)
+  - Step 3: Requirements
+  - Step 4: Database
+  - Step 5: License
+  - Step 6: Admin
+  - Step 7: Finalize
+- Updated all controllers to reflect new step numbers
+
+### Added (Previous)
+
 - Added automatic `.env` file initialization from `.env.example`
   - Installer creates `.env` from `.env.example` if it doesn't exist
   - Automatically generates new `APP_KEY` during first step

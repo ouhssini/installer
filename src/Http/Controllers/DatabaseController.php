@@ -85,8 +85,8 @@ class DatabaseController extends Controller
                     ]);
             }
 
-            $this->installer->completeStep(3);
-            $this->installer->setCurrentStep(4);
+            $this->installer->completeStep(4);
+            $this->installer->setCurrentStep(5);
 
             return redirect()->route('installer.license');
 

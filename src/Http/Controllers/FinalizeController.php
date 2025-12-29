@@ -19,7 +19,7 @@ class FinalizeController extends Controller
 
     public function store(Request $request)
     {
-        $this->installer->completeStep(6);
+        $this->installer->completeStep(7);
         $this->installer->finalize();
 
         // Auto-login the created admin user

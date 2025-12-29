@@ -40,8 +40,8 @@ class RequirementsController extends Controller
             ]);
         }
 
-        $this->installer->completeStep(2);
-        $this->installer->setCurrentStep(3);
+        $this->installer->completeStep(3);
+        $this->installer->setCurrentStep(4);
 
         return redirect()->route('installer.database');
     }
