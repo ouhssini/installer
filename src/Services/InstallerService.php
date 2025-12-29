@@ -161,7 +161,7 @@ class InstallerService
      */
     private function syncToDatabase(): void
     {
-        if (!$this->isDatabaseAvailable()) {
+        if (! $this->isDatabaseAvailable()) {
             return;
         }
 

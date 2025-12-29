@@ -42,7 +42,7 @@ class InstallerServiceProvider extends PackageServiceProvider
         $router = $this->app['router'];
         $router->aliasMiddleware('installer.redirect', RedirectIfInstalled::class);
         $router->aliasMiddleware('installer.ensure', EnsureInstalled::class);
-        
+
         // Register global middleware to protect all routes
         $router->pushMiddlewareToGroup('web', EnsureInstalled::class);
     }

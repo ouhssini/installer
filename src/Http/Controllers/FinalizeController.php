@@ -28,7 +28,7 @@ class FinalizeController extends Controller
             try {
                 $userModel = config('auth.providers.users.model', 'App\\Models\\User');
                 $user = $userModel::find($userId);
-                
+
                 if ($user) {
                     \Illuminate\Support\Facades\Auth::login($user);
                 }
