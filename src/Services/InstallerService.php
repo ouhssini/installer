@@ -5,6 +5,7 @@ namespace SoftCortex\Installer\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class InstallerService
 {
@@ -19,6 +20,11 @@ class InstallerService
     public function isInstalled(): bool
     {
         try {
+            // First check if settings table exists
+            if (!$this->settingsTableExists()) {
+                return false;
+            }
+            
             $value = $this->getSetting('app_installed', 'false');
             return $value === 'true';
         } catch (\Exception $e) {
@@ -50,6 +56,10 @@ class InstallerService
     public function getSetting(string $key, mixed $default = null): mixed
     {
         try {
+            if (!$this->settingsTableExists()) {
+                return $default;
+            }
+            
             $setting = DB::table('settings')->where('key', $key)->first();
             return $setting ? $setting->value : $default;
         } catch (\Exception $e) {
@@ -74,8 +84,25 @@ class InstallerService
     public function hasSetting(string $key): bool
     {
         try {
+            if (!$this->settingsTableExists()) {
+                return false;
+            }
+            
             return DB::table('settings')->where('key', $key)->exists();
         } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the settings table exists
+     */
+    private function settingsTableExists(): bool
+    {
+        try {
+            return Schema::hasTable('settings');
+        } catch (\Exception $e) {
+            // If we can't check (e.g., no database connection), return false
             return false;
         }
     }

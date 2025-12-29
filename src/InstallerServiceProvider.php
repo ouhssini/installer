@@ -18,7 +18,7 @@ class InstallerServiceProvider extends PackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('magic-installer')
+            ->name('installer')
             ->hasConfigFile('installer')
             ->hasViews('installer')
             ->hasRoute('installer')
