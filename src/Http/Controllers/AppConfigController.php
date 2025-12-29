@@ -76,7 +76,7 @@ class AppConfigController extends Controller
         $langPath = base_path('lang');
         $locales = [];
 
-        if (!File::exists($langPath)) {
+        if (! File::exists($langPath)) {
             return [
                 'en' => 'English',
             ];
@@ -90,10 +90,10 @@ class AppConfigController extends Controller
         }
 
         // Get JSON files (e.g., en.json, fr.json)
-        $jsonFiles = File::glob($langPath . '/*.json');
+        $jsonFiles = File::glob($langPath.'/*.json');
         foreach ($jsonFiles as $file) {
             $locale = basename($file, '.json');
-            if (!isset($locales[$locale])) {
+            if (! isset($locales[$locale])) {
                 $locales[$locale] = $this->getLocaleName($locale);
             }
         }
@@ -195,4 +195,3 @@ class AppConfigController extends Controller
         ];
     }
 }
-
