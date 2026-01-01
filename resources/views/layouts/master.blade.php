@@ -20,7 +20,7 @@
             @if(isset($currentStep))
             <div class="mb-8">
                 <div class="flex justify-between items-center">
-                    @foreach(['Welcome', 'Requirements', 'Database', 'License', 'Admin', 'Finalize'] as $index => $step)
+                    @foreach(['Welcome', 'App Config', 'Requirements', 'Database', 'License', 'Admin', 'Finalize'] as $index => $step)
                         <div class="flex-1 text-center">
                             <div class="relative">
                                 <div class="w-10 h-10 mx-auto rounded-full {{ ($index + 1) <= $currentStep ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' }} flex items-center justify-center font-semibold">
@@ -31,7 +31,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if($index < 5)
+                        @if($index < 6)
                         <div class="flex-1 h-1 {{ ($index + 1) < $currentStep ? 'bg-blue-600' : 'bg-gray-300' }}"></div>
                         @endif
                     @endforeach

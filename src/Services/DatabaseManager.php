@@ -84,6 +84,9 @@ class DatabaseManager
                 'DB_DATABASE' => $database,
             ]);
 
+            // Set default connection
+            Config::set('database.default', 'sqlite');
+
             // Reload configuration
             Config::set('database.connections.sqlite', [
                 'driver' => 'sqlite',
@@ -92,9 +95,10 @@ class DatabaseManager
                 'foreign_key_constraints' => true,
             ]);
 
-            // Reconnect to database
+            // Purge and reconnect
             DB::purge('sqlite');
             DB::reconnect('sqlite');
+            DB::setDefaultConnection('sqlite');
 
         } elseif ($connection === 'pgsql') {
             $this->environment->setMultiple([
@@ -105,6 +109,9 @@ class DatabaseManager
                 'DB_USERNAME' => $credentials['username'] ?? '',
                 'DB_PASSWORD' => $credentials['password'] ?? '',
             ]);
+
+            // Set default connection
+            Config::set('database.default', 'pgsql');
 
             // Reload configuration
             Config::set('database.connections.pgsql', [
@@ -120,9 +127,10 @@ class DatabaseManager
                 'sslmode' => 'prefer',
             ]);
 
-            // Reconnect to database
+            // Purge and reconnect
             DB::purge('pgsql');
             DB::reconnect('pgsql');
+            DB::setDefaultConnection('pgsql');
 
         } else {
             // MySQL
@@ -134,6 +142,9 @@ class DatabaseManager
                 'DB_USERNAME' => $credentials['username'] ?? '',
                 'DB_PASSWORD' => $credentials['password'] ?? '',
             ]);
+
+            // Set default connection
+            Config::set('database.default', 'mysql');
 
             // Reload configuration
             Config::set('database.connections.mysql', [
@@ -150,9 +161,10 @@ class DatabaseManager
                 'engine' => null,
             ]);
 
-            // Reconnect to database
+            // Purge and reconnect
             DB::purge('mysql');
             DB::reconnect('mysql');
+            DB::setDefaultConnection('mysql');
         }
     }
 
