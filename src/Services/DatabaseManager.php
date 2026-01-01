@@ -211,11 +211,12 @@ class DatabaseManager
      */
     public function createSettingsTable(): void
     {
-        if (! DB::getSchemaBuilder()->hasTable('settings')) {
-            $connection = Config::get('database.default');
-
+        $connection = Config::get('database.default');
+        
+        // Use the specific connection, not the default
+        if (! DB::connection($connection)->getSchemaBuilder()->hasTable('settings')) {
             if ($connection === 'sqlite') {
-                DB::statement('
+                DB::connection($connection)->statement('
                     CREATE TABLE settings (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         `key` VARCHAR(255) NOT NULL UNIQUE,
@@ -225,7 +226,7 @@ class DatabaseManager
                     )
                 ');
             } elseif ($connection === 'pgsql') {
-                DB::statement('
+                DB::connection($connection)->statement('
                     CREATE TABLE settings (
                         id BIGSERIAL PRIMARY KEY,
                         key VARCHAR(255) NOT NULL UNIQUE,
@@ -236,7 +237,7 @@ class DatabaseManager
                 ');
             } else {
                 // MySQL
-                DB::statement('
+                DB::connection($connection)->statement('
                     CREATE TABLE settings (
                         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                         `key` VARCHAR(255) NOT NULL UNIQUE,
