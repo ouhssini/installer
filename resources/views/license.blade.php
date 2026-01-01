@@ -59,7 +59,7 @@
 @endsection
 
 @php
-    $currentStep = 4;
+    $currentStep = 5;
 @endphp
 
 @if($licenseEnabled)

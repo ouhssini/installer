@@ -39,5 +39,5 @@
 @endsection
 
 @php
-    $currentStep = 6;
+    $currentStep = 7;
 @endphp
