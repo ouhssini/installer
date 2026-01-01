@@ -6,6 +6,34 @@ All notable changes to `magic-installer` will be documented in this file.
 
 ### Added
 
+- Added database type selection (SQLite, MySQL, PostgreSQL)
+  - SQLite support for file-based databases (no server required)
+  - PostgreSQL support for enterprise applications
+  - Dynamic port configuration based on database type
+  - Smart field toggling based on selected database type
+- Added smart role assignment system
+  - Automatically detects `role` or `roles` column in users table
+  - Detects Spatie HasRoles trait usage
+  - Falls back gracefully if no role system detected
+  - Comprehensive logging for role assignment
+- Added automatic database storage migration
+  - Switches from file-based to database storage after installation
+  - Deletes `.installed` and `installer-settings.json` after successful sync
+  - Uses database as primary storage post-installation
+  - File storage used only during installation process
+
+### Changed
+
+- **BREAKING**: `.env` file now always initialized from package's `.env.example`
+  - Ensures non-database drivers (session=file, queue=sync, cache=file)
+  - Overwrites existing `.env` to guarantee correct configuration
+  - SQLite set as default database connection
+- Updated `isInstalled()` to check database first, then fall back to files
+- Enhanced database connection testing for all database types
+- Improved error handling and logging throughout installation process
+
+### Added (Previous)
+
 - Added new "App Configuration" step in installer
   - Configure APP_NAME, APP_ENV, APP_DEBUG, APP_URL, APP_TIMEZONE, APP_LOCALE
   - Auto-detects available languages from lang directory
@@ -17,15 +45,15 @@ All notable changes to `magic-installer` will be documented in this file.
 - Added AppConfigController with locale and timezone detection
 - Added app-config.blade.php view with modern UI
 
-### Changed
+### Changed (Previous)
 
 - Updated installation flow to 7 steps (was 6)
   - Step 1: Welcome
   - Step 2: App Configuration (NEW)
   - Step 3: Requirements
-  - Step 4: Database
+  - Step 4: Database (ENHANCED with type selection)
   - Step 5: License
-  - Step 6: Admin
+  - Step 6: Admin (ENHANCED with smart role assignment)
   - Step 7: Finalize
 - Updated all controllers to reflect new step numbers
 
@@ -44,7 +72,7 @@ All notable changes to `magic-installer` will be documented in this file.
 - Added `generateAppKey()` method to EnvironmentManager
 - Added `envFileExists()` method to EnvironmentManager
 
-### Changed
+### Changed (Previous)
 
 - Updated WelcomeController to handle `.env` initialization on first step
 

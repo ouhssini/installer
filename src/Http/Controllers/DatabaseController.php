@@ -22,18 +22,30 @@ class DatabaseController extends Controller
 
     public function test(Request $request)
     {
-        $request->validate([
-            'host' => 'required|string',
-            'port' => 'required|numeric',
-            'database' => 'required|string',
-            'username' => 'required|string',
-            'password' => 'nullable|string',
-        ]);
+        $connection = $request->input('connection', 'mysql');
+        
+        if ($connection === 'sqlite') {
+            $request->validate([
+                'connection' => 'required|in:sqlite,mysql,pgsql',
+                'database' => 'required|string',
+            ]);
+        } else {
+            $request->validate([
+                'connection' => 'required|in:sqlite,mysql,pgsql',
+                'host' => 'required|string',
+                'port' => 'required|numeric',
+                'database' => 'required|string',
+                'username' => 'required|string',
+                'password' => 'nullable|string',
+            ]);
+        }
 
         try {
-            $this->database->testConnection($request->only([
-                'host', 'port', 'database', 'username', 'password',
-            ]));
+            $credentials = $request->only([
+                'connection', 'host', 'port', 'database', 'username', 'password',
+            ]);
+            
+            $this->database->testConnection($credentials);
 
             return response()->json([
                 'success' => true,
@@ -41,8 +53,7 @@ class DatabaseController extends Controller
             ]);
         } catch (\PDOException $e) {
             Log::error('Database connection test failed', [
-                'host' => $request->host,
-                'database' => $request->database,
+                'connection' => $connection,
                 'error' => $e->getMessage(),
             ]);
 
@@ -55,17 +66,27 @@ class DatabaseController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'host' => 'required|string',
-            'port' => 'required|numeric',
-            'database' => 'required|string',
-            'username' => 'required|string',
-            'password' => 'nullable|string',
-        ]);
+        $connection = $request->input('connection', 'mysql');
+        
+        if ($connection === 'sqlite') {
+            $request->validate([
+                'connection' => 'required|in:sqlite,mysql,pgsql',
+                'database' => 'required|string',
+            ]);
+        } else {
+            $request->validate([
+                'connection' => 'required|in:sqlite,mysql,pgsql',
+                'host' => 'required|string',
+                'port' => 'required|numeric',
+                'database' => 'required|string',
+                'username' => 'required|string',
+                'password' => 'nullable|string',
+            ]);
+        }
 
         try {
             $credentials = $request->only([
-                'host', 'port', 'database', 'username', 'password',
+                'connection', 'host', 'port', 'database', 'username', 'password',
             ]);
 
             // Test connection

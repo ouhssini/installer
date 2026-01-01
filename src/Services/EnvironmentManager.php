@@ -17,30 +17,21 @@ class EnvironmentManager
     }
 
     /**
-     * Initialize .env file from .env.example if it doesn't exist
+     * Initialize .env file from package's .env.example
+     * Always uses the package's version to ensure non-database drivers
      */
     public function initializeFromExample(): bool
     {
-        // If .env already exists, don't overwrite
-        if (File::exists($this->envPath)) {
-            return true;
+        // Always use package's .env.example (not the base Laravel one)
+        $packageEnvExample = __DIR__.'/../../.env.example';
+        
+        if (! File::exists($packageEnvExample)) {
+            return false;
         }
 
-        // Check if .env.example exists
-        if (! File::exists($this->envExamplePath)) {
-            // Try to use package's .env.example
-            $packageEnvExample = __DIR__.'/../../.env.example';
-            if (File::exists($packageEnvExample)) {
-                $this->envExamplePath = $packageEnvExample;
-            } else {
-                return false;
-            }
-        }
-
-        // Copy .env.example to .env
+        // Copy package's .env.example to .env (overwrite if exists)
         try {
-            File::copy($this->envExamplePath, $this->envPath);
-
+            File::copy($packageEnvExample, $this->envPath);
             return true;
         } catch (\Exception $e) {
             return false;

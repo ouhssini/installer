@@ -24,27 +24,25 @@ class WelcomeController extends Controller
 
     public function store(Request $request)
     {
-        // Initialize .env from .env.example if it doesn't exist
-        if (! $this->environment->envFileExists()) {
-            $initialized = $this->environment->initializeFromExample();
+        // Always initialize .env from package's .env.example
+        $initialized = $this->environment->initializeFromExample();
 
-            if (! $initialized) {
-                return back()->withErrors([
-                    'env' => 'Failed to create .env file. Please ensure .env.example exists and is readable.',
-                ]);
-            }
+        if (! $initialized) {
+            return back()->withErrors([
+                'env' => 'Failed to create .env file. Please ensure the package is properly installed.',
+            ]);
+        }
 
-            // Generate new APP_KEY
-            $this->environment->generateAppKey();
+        // Generate new APP_KEY
+        $this->environment->generateAppKey();
 
-            // Clear config cache to load new .env values
-            try {
-                Artisan::call('config:clear');
-                Artisan::call('route:clear');
-                Artisan::call('cache:clear');
-            } catch (\Exception $e) {
-                // Silently continue if cache clear fails
-            }
+        // Clear config cache to load new .env values
+        try {
+            Artisan::call('config:clear');
+            Artisan::call('route:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {
+            // Silently continue if cache clear fails
         }
 
         $this->installer->completeStep(1);
