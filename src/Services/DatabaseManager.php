@@ -21,30 +21,30 @@ class DatabaseManager
     {
         try {
             $connection = $credentials['connection'] ?? 'mysql';
-            
+
             if ($connection === 'sqlite') {
                 // For SQLite, just check if we can create/access the file
                 $database = $credentials['database'] ?? database_path('database.sqlite');
-                
+
                 // Create directory if it doesn't exist
                 $dir = dirname($database);
-                if (!file_exists($dir)) {
+                if (! file_exists($dir)) {
                     mkdir($dir, 0755, true);
                 }
-                
+
                 // Create file if it doesn't exist
-                if (!file_exists($database)) {
+                if (! file_exists($database)) {
                     touch($database);
                 }
-                
+
                 $dsn = "sqlite:{$database}";
                 $pdo = new PDO($dsn, null, null, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 ]);
-                
+
                 return true;
             }
-            
+
             // MySQL or PostgreSQL
             $host = $credentials['host'] ?? 'localhost';
             $port = $credentials['port'] ?? ($connection === 'pgsql' ? '5432' : '3306');
@@ -75,10 +75,10 @@ class DatabaseManager
     public function writeConfiguration(array $credentials): void
     {
         $connection = $credentials['connection'] ?? 'mysql';
-        
+
         if ($connection === 'sqlite') {
             $database = $credentials['database'] ?? database_path('database.sqlite');
-            
+
             $this->environment->setMultiple([
                 'DB_CONNECTION' => 'sqlite',
                 'DB_DATABASE' => $database,
@@ -95,7 +95,7 @@ class DatabaseManager
             // Reconnect to database
             DB::purge('sqlite');
             DB::reconnect('sqlite');
-            
+
         } elseif ($connection === 'pgsql') {
             $this->environment->setMultiple([
                 'DB_CONNECTION' => 'pgsql',
@@ -123,7 +123,7 @@ class DatabaseManager
             // Reconnect to database
             DB::purge('pgsql');
             DB::reconnect('pgsql');
-            
+
         } else {
             // MySQL
             $this->environment->setMultiple([
@@ -191,7 +191,7 @@ class DatabaseManager
     {
         if (! DB::getSchemaBuilder()->hasTable('settings')) {
             $connection = Config::get('database.default');
-            
+
             if ($connection === 'sqlite') {
                 DB::statement('
                     CREATE TABLE settings (

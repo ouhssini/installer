@@ -23,7 +23,7 @@ class DatabaseController extends Controller
     public function test(Request $request)
     {
         $connection = $request->input('connection', 'mysql');
-        
+
         if ($connection === 'sqlite') {
             $request->validate([
                 'connection' => 'required|in:sqlite,mysql,pgsql',
@@ -44,7 +44,7 @@ class DatabaseController extends Controller
             $credentials = $request->only([
                 'connection', 'host', 'port', 'database', 'username', 'password',
             ]);
-            
+
             $this->database->testConnection($credentials);
 
             return response()->json([
@@ -67,7 +67,7 @@ class DatabaseController extends Controller
     public function store(Request $request)
     {
         $connection = $request->input('connection', 'mysql');
-        
+
         if ($connection === 'sqlite') {
             $request->validate([
                 'connection' => 'required|in:sqlite,mysql,pgsql',

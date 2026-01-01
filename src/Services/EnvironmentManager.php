@@ -24,7 +24,7 @@ class EnvironmentManager
     {
         // Always use package's .env.example (not the base Laravel one)
         $packageEnvExample = __DIR__.'/../../.env.example';
-        
+
         if (! File::exists($packageEnvExample)) {
             return false;
         }
@@ -32,6 +32,7 @@ class EnvironmentManager
         // Copy package's .env.example to .env (overwrite if exists)
         try {
             File::copy($packageEnvExample, $this->envPath);
+
             return true;
         } catch (\Exception $e) {
             return false;

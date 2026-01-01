@@ -31,7 +31,7 @@ class InstallerService
                     ->where('key', 'app_installed')
                     ->where('value', 'true')
                     ->exists();
-                
+
                 if ($installed) {
                     return true;
                 }
@@ -39,7 +39,7 @@ class InstallerService
                 // Fall through to file check
             }
         }
-        
+
         // Fallback to file check (during installation)
         return File::exists($this->installedFilePath);
     }
@@ -185,7 +185,7 @@ class InstallerService
         try {
             // Get all settings from file
             $settings = $this->loadSettings();
-            
+
             // Sync app_installed
             \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
                 ['key' => 'app_installed'],
@@ -206,7 +206,7 @@ class InstallerService
                     'created_at' => now(),
                 ]
             );
-            
+
             // Sync license data if exists
             if (isset($settings['license_hash'])) {
                 \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
@@ -218,7 +218,7 @@ class InstallerService
                     ]
                 );
             }
-            
+
             if (isset($settings['license_data'])) {
                 \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
                     ['key' => 'license_data'],
@@ -229,7 +229,7 @@ class InstallerService
                     ]
                 );
             }
-            
+
         } catch (\Exception $e) {
             // Silently fail - file storage is primary during installation
             \Illuminate\Support\Facades\Log::warning('Failed to sync to database', [
@@ -257,17 +257,17 @@ class InstallerService
                     ->where('key', 'app_installed')
                     ->where('value', 'true')
                     ->exists();
-                
+
                 if ($installed) {
                     // Delete file-based storage
                     if (File::exists($this->installedFilePath)) {
                         File::delete($this->installedFilePath);
                     }
-                    
+
                     if (File::exists($this->settingsFilePath)) {
                         File::delete($this->settingsFilePath);
                     }
-                    
+
                     \Illuminate\Support\Facades\Log::info('Switched to database storage - file storage deleted');
                 }
             } catch (\Exception $e) {
