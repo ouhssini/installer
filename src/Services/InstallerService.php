@@ -24,11 +24,6 @@ class InstallerService
      */
     public function isInstalled(): bool
     {
-        // ONLY check file during installation
-        // Database check is NOT reliable during installation because:
-        // 1. Connection might be changing (SQLite -> MySQL)
-        // 2. Settings table might not exist yet
-        // 3. We're in the middle of configuring the database
         return File::exists($this->installedFilePath);
     }
 
@@ -150,20 +145,27 @@ class InstallerService
     }
 
     /**
+     * Check if database settings table is available
+     */
+    private function isDatabaseAvailable(): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\Schema::hasTable('settings');
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
      * Sync installation data to database settings table
      */
     private function syncToDatabase(): void
     {
+        if (! $this->isDatabaseAvailable()) {
+            return;
+        }
+
         try {
-            // Check if settings table exists
-            if (! \Illuminate\Support\Facades\Schema::hasTable('settings')) {
-                return;
-            }
-
-            // Get all settings from file
-            $settings = $this->loadSettings();
-
-            // Sync app_installed
             \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
                 ['key' => 'app_installed'],
                 [
@@ -173,45 +175,19 @@ class InstallerService
                 ]
             );
 
-            // Sync installation_date
-            $installationDate = $settings['installation_date'] ?? now()->toDateTimeString();
-            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
-                ['key' => 'installation_date'],
-                [
-                    'value' => $installationDate,
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ]
-            );
-
-            // Sync license data if exists
-            if (isset($settings['license_hash'])) {
+            $installationDate = $this->getSetting('installation_date');
+            if ($installationDate) {
                 \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
-                    ['key' => 'license_hash'],
+                    ['key' => 'installation_date'],
                     [
-                        'value' => $settings['license_hash'],
+                        'value' => $installationDate,
                         'updated_at' => now(),
                         'created_at' => now(),
                     ]
                 );
             }
-
-            if (isset($settings['license_data'])) {
-                \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
-                    ['key' => 'license_data'],
-                    [
-                        'value' => $settings['license_data'],
-                        'updated_at' => now(),
-                        'created_at' => now(),
-                    ]
-                );
-            }
-
         } catch (\Exception $e) {
             // Silently fail - file storage is primary during installation
-            \Illuminate\Support\Facades\Log::warning('Failed to sync to database', [
-                'error' => $e->getMessage(),
-            ]);
         }
     }
 
@@ -225,36 +201,6 @@ class InstallerService
 
         // Sync to database if available
         $this->syncToDatabase();
-
-        // Delete file-based storage after successful database sync
-        try {
-            // Check if settings table exists
-            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
-                // Verify data is in database before deleting files
-                $installed = \Illuminate\Support\Facades\DB::table('settings')
-                    ->where('key', 'app_installed')
-                    ->where('value', 'true')
-                    ->exists();
-
-                if ($installed) {
-                    // Delete file-based storage
-                    if (File::exists($this->installedFilePath)) {
-                        File::delete($this->installedFilePath);
-                    }
-
-                    if (File::exists($this->settingsFilePath)) {
-                        File::delete($this->settingsFilePath);
-                    }
-
-                    \Illuminate\Support\Facades\Log::info('Switched to database storage - file storage deleted');
-                }
-            }
-        } catch (\Exception $e) {
-            // Keep file storage as fallback
-            \Illuminate\Support\Facades\Log::warning('Could not delete file storage', [
-                'error' => $e->getMessage(),
-            ]);
-        }
 
         // Clear all caches
         Artisan::call('cache:clear');
@@ -273,16 +219,6 @@ class InstallerService
 
         if (File::exists($this->settingsFilePath)) {
             File::delete($this->settingsFilePath);
-        }
-
-        // Optionally, clear database settings related to installation
-        try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
-                \Illuminate\Support\Facades\DB::table('settings')->whereIn('key', ['app_installed', 'installation_date'])
-                    ->delete();
-            }
-        } catch (\Exception $e) {
-            // Silently fail
         }
     }
 }
