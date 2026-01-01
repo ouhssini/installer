@@ -213,7 +213,7 @@ class DatabaseManager
     public function createSettingsTable(): void
     {
         $connection = Config::get('database.default');
-        
+
         // Use the specific connection, not the default
         if (! DB::connection($connection)->getSchemaBuilder()->hasTable('settings')) {
             if ($connection === 'sqlite') {
