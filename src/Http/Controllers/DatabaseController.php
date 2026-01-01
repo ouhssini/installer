@@ -89,16 +89,30 @@ class DatabaseController extends Controller
                 'connection', 'host', 'port', 'database', 'username', 'password',
             ]);
 
+            Log::info('Starting database configuration', [
+                'connection' => $connection,
+                'host' => $credentials['host'] ?? 'N/A',
+                'database' => $credentials['database'] ?? 'N/A',
+            ]);
+
             // Test connection
             $this->database->testConnection($credentials);
+            Log::info('Database connection test passed');
 
             // Write configuration
             $this->database->writeConfiguration($credentials);
+            Log::info('Database configuration written');
 
             // Run migrations
             $result = $this->database->runMigrations();
+            Log::info('Migration result', $result);
 
             if (! $result['success']) {
+                Log::error('Migration failed', [
+                    'error' => $result['error'] ?? 'Unknown error',
+                    'output' => $result['output'] ?? [],
+                ]);
+                
                 return back()
                     ->withInput()
                     ->withErrors([
@@ -109,17 +123,31 @@ class DatabaseController extends Controller
             $this->installer->completeStep(4);
             $this->installer->setCurrentStep(5);
 
+            Log::info('Database setup completed successfully');
+
             return redirect()->route('installer.license');
 
         } catch (\PDOException $e) {
-            Log::error('Database configuration failed', [
+            Log::error('Database PDO exception', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()
                 ->withInput()
                 ->withErrors([
-                    'database' => 'Database connection failed. Please check your credentials.',
+                    'database' => 'Database connection failed: '.$e->getMessage(),
+                ]);
+        } catch (\Exception $e) {
+            Log::error('Database configuration exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'database' => 'Configuration failed: '.$e->getMessage(),
                 ]);
         }
     }

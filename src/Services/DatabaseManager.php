@@ -95,10 +95,11 @@ class DatabaseManager
                 'foreign_key_constraints' => true,
             ]);
 
-            // Purge and reconnect
+            // Purge all connections and reconnect
+            DB::disconnect();
             DB::purge('sqlite');
-            DB::reconnect('sqlite');
             DB::setDefaultConnection('sqlite');
+            DB::reconnect('sqlite');
 
         } elseif ($connection === 'pgsql') {
             $this->environment->setMultiple([
@@ -127,10 +128,11 @@ class DatabaseManager
                 'sslmode' => 'prefer',
             ]);
 
-            // Purge and reconnect
+            // Purge all connections and reconnect
+            DB::disconnect();
             DB::purge('pgsql');
-            DB::reconnect('pgsql');
             DB::setDefaultConnection('pgsql');
+            DB::reconnect('pgsql');
 
         } else {
             // MySQL
@@ -161,10 +163,18 @@ class DatabaseManager
                 'engine' => null,
             ]);
 
-            // Purge and reconnect
+            // Purge all connections and reconnect
+            DB::disconnect();
             DB::purge('mysql');
-            DB::reconnect('mysql');
             DB::setDefaultConnection('mysql');
+            DB::reconnect('mysql');
+        }
+        
+        // Clear config cache
+        try {
+            Artisan::call('config:clear');
+        } catch (\Exception $e) {
+            // Ignore if fails
         }
     }
 
