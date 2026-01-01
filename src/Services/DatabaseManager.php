@@ -186,12 +186,13 @@ class DatabaseManager
         $output = [];
 
         try {
-            // Create settings table first
-            $this->createSettingsTable();
-
-            // Run all migrations
+            // Run migrations with --force flag
+            // Use migrate:fresh to drop all tables and recreate them cleanly
             Artisan::call('migrate', ['--force' => true]);
             $output[] = Artisan::output();
+
+            // Create settings table AFTER migrations
+            $this->createSettingsTable();
 
             return [
                 'success' => true,
@@ -212,7 +213,7 @@ class DatabaseManager
     public function createSettingsTable(): void
     {
         $connection = Config::get('database.default');
-
+        
         // Use the specific connection, not the default
         if (! DB::connection($connection)->getSchemaBuilder()->hasTable('settings')) {
             if ($connection === 'sqlite') {

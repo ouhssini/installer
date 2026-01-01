@@ -24,23 +24,11 @@ class InstallerService
      */
     public function isInstalled(): bool
     {
-        // First check database (primary after installation)
-        if ($this->isDatabaseAvailable()) {
-            try {
-                $installed = \Illuminate\Support\Facades\DB::table('settings')
-                    ->where('key', 'app_installed')
-                    ->where('value', 'true')
-                    ->exists();
-
-                if ($installed) {
-                    return true;
-                }
-            } catch (\Exception $e) {
-                // Fall through to file check
-            }
-        }
-
-        // Fallback to file check (during installation)
+        // ONLY check file during installation
+        // Database check is NOT reliable during installation because:
+        // 1. Connection might be changing (SQLite -> MySQL)
+        // 2. Settings table might not exist yet
+        // 3. We're in the middle of configuring the database
         return File::exists($this->installedFilePath);
     }
 
@@ -162,27 +150,16 @@ class InstallerService
     }
 
     /**
-     * Check if database settings table is available
-     */
-    private function isDatabaseAvailable(): bool
-    {
-        try {
-            return \Illuminate\Support\Facades\Schema::hasTable('settings');
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    /**
      * Sync installation data to database settings table
      */
     private function syncToDatabase(): void
     {
-        if (! $this->isDatabaseAvailable()) {
-            return;
-        }
-
         try {
+            // Check if settings table exists
+            if (! \Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                return;
+            }
+
             // Get all settings from file
             $settings = $this->loadSettings();
 
@@ -250,8 +227,9 @@ class InstallerService
         $this->syncToDatabase();
 
         // Delete file-based storage after successful database sync
-        if ($this->isDatabaseAvailable()) {
-            try {
+        try {
+            // Check if settings table exists
+            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
                 // Verify data is in database before deleting files
                 $installed = \Illuminate\Support\Facades\DB::table('settings')
                     ->where('key', 'app_installed')
@@ -270,12 +248,12 @@ class InstallerService
 
                     \Illuminate\Support\Facades\Log::info('Switched to database storage - file storage deleted');
                 }
-            } catch (\Exception $e) {
-                // Keep file storage as fallback
-                \Illuminate\Support\Facades\Log::warning('Could not delete file storage', [
-                    'error' => $e->getMessage(),
-                ]);
             }
+        } catch (\Exception $e) {
+            // Keep file storage as fallback
+            \Illuminate\Support\Facades\Log::warning('Could not delete file storage', [
+                'error' => $e->getMessage(),
+            ]);
         }
 
         // Clear all caches
@@ -298,13 +276,13 @@ class InstallerService
         }
 
         // Optionally, clear database settings related to installation
-        if ($this->isDatabaseAvailable()) {
-            try {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
                 \Illuminate\Support\Facades\DB::table('settings')->whereIn('key', ['app_installed', 'installation_date'])
                     ->delete();
-            } catch (\Exception $e) {
-                // Silently fail
             }
+        } catch (\Exception $e) {
+            // Silently fail
         }
     }
 }
