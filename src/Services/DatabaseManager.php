@@ -169,7 +169,7 @@ class DatabaseManager
             DB::setDefaultConnection('mysql');
             DB::reconnect('mysql');
         }
-        
+
         // Clear config cache
         try {
             Artisan::call('config:clear');

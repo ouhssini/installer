@@ -112,7 +112,7 @@ class DatabaseController extends Controller
                     'error' => $result['error'] ?? 'Unknown error',
                     'output' => $result['output'] ?? [],
                 ]);
-                
+
                 return back()
                     ->withInput()
                     ->withErrors([
