@@ -25,7 +25,7 @@ class InstallerServiceProvider extends PackageServiceProvider
             ->hasMigration('create_settings_table')
             ->hasCommand(InstallerCommand::class);
 
-        // Publish .env.example
+        // Publish .env.example (force override)
         $this->publishes([
             __DIR__.'/../.env.example' => base_path('.env.example'),
         ], 'installer-env');

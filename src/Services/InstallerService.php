@@ -1,9 +1,9 @@
 <?php
-
 namespace SoftCortex\Installer\Services;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 class InstallerService
 {
@@ -16,7 +16,7 @@ class InstallerService
         private EnvironmentManager $environment
     ) {
         $this->installedFilePath = storage_path('app/.installed');
-        $this->settingsFilePath = storage_path('app/installer-settings.json');
+        $this->settingsFilePath  = storage_path('app/installer-settings.json');
     }
 
     /**
@@ -33,7 +33,7 @@ class InstallerService
     public function markAsInstalled(): void
     {
         File::put($this->installedFilePath, json_encode([
-            'installed' => true,
+            'installed'    => true,
             'installed_at' => now()->toDateTimeString(),
         ]));
     }
@@ -63,7 +63,7 @@ class InstallerService
      */
     public function setSetting(string $key, mixed $value): void
     {
-        $settings = $this->loadSettings();
+        $settings       = $this->loadSettings();
         $settings[$key] = $value;
         $this->saveSettings($settings);
     }
@@ -169,9 +169,12 @@ class InstallerService
             \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
                 ['key' => 'app_installed'],
                 [
-                    'value' => 'true',
+                    'value'      => 'true',
                     'updated_at' => now(),
                     'created_at' => now(),
+                    //  if category column exists, set it to 'Installer'
+                    'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
+                    'changeable' => Schema::hasColumn('settings', 'changeable') ? false : null,
                 ]
             );
 
@@ -180,9 +183,11 @@ class InstallerService
                 \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
                     ['key' => 'installation_date'],
                     [
-                        'value' => $installationDate,
+                        'value'      => $installationDate,
                         'updated_at' => now(),
                         'created_at' => now(),
+                        'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
+                        'changeable' => Schema::hasColumn('settings', 'changeable') ? false : null,
                     ]
                 );
             }
@@ -220,5 +225,22 @@ class InstallerService
         if (File::exists($this->settingsFilePath)) {
             File::delete($this->settingsFilePath);
         }
+
+        //  clear database settings if available
+        if ($this->isDatabaseAvailable()) {
+            try {
+                \Illuminate\Support\Facades\DB::table('settings')->whereIn('key', [
+                    'app_installed',
+                    'installation_date',
+                ])->delete();
+            } catch (\Exception $e) {
+                // Silently fail
+            }
+        }
+
+        // Clear all caches
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('view:clear');
     }
 }
