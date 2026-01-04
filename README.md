@@ -45,11 +45,16 @@ Publish the configuration file:
 php artisan vendor:publish --tag="installer-config"
 ```
 
-Optionally, publish the `.env.example` file:
+Optionally, publish the `.env.example` file (configured with database drivers for cache, session, and queue):
 
 ```bash
 php artisan vendor:publish --tag="installer-env"
 ```
+
+> **Note**: If the `.env.example` file already exists, use the `--force` flag to overwrite it:
+> ```bash
+> php artisan vendor:publish --tag="installer-env" --force
+> ```
 
 Optionally, publish the views for customization:
 

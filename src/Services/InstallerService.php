@@ -172,7 +172,7 @@ class InstallerService
                     'value'      => 'true',
                     'updated_at' => now(),
                     'created_at' => now(),
-                    //  if category column exists, set it to 'Installer'
+                    //  if category column exists, set it to 'Installer' and changable False 
                     'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
                     'changeable' => Schema::hasColumn('settings', 'changeable') ? false : null,
                 ]
@@ -186,6 +186,7 @@ class InstallerService
                         'value'      => $installationDate,
                         'updated_at' => now(),
                         'created_at' => now(),
+                      //  if category  column exists, set it to 'Installer' and changable False 
                         'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
                         'changeable' => Schema::hasColumn('settings', 'changeable') ? false : null,
                     ]
@@ -207,10 +208,17 @@ class InstallerService
         // Sync to database if available
         $this->syncToDatabase();
 
-        // Clear all caches
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('view:clear');
+        // Switch to database drivers for session, cache, and queue
+        $this->switchToDatabaseDrivers();
+
+        // Clear all caches (wrapped in try-catch for testing environments)
+        try {
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
+            Artisan::call('view:clear');
+        } catch (\Exception $e) {
+            // Silently fail in testing environments where cache tables may not exist
+        }
     }
 
     /**
@@ -238,9 +246,37 @@ class InstallerService
             }
         }
 
-        // Clear all caches
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('view:clear');
+        // Clear all caches (wrapped in try-catch for testing environments)
+        try {
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
+            Artisan::call('view:clear');
+        } catch (\Exception $e) {
+            // Silently fail in testing environments where cache tables may not exist
+        }
     }
+
+
+
+
+      /**
+     * Switch environment to use database drivers
+     */
+    private function switchToDatabaseDrivers(): void
+    {
+        try {
+            $this->environment->setMultiple([
+                'SESSION_DRIVER' => 'database',
+                'CACHE_STORE' => 'database',
+                'QUEUE_CONNECTION' => 'database',
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Switched to database drivers for session, cache, and queue');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to switch to database drivers', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+    
 }

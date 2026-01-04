@@ -24,8 +24,13 @@ class InstallerServiceProvider extends PackageServiceProvider
             ->hasRoute('installer')
             ->hasMigration('create_settings_table')
             ->hasCommand(InstallerCommand::class);
+    }
 
-        // Publish .env.example (force override)
+    public function boot(): void
+    {
+        parent::boot();
+
+        // Publish .env.example (use --force flag to override existing file)
         $this->publishes([
             __DIR__.'/../.env.example' => base_path('.env.example'),
         ], 'installer-env');
