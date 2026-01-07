@@ -72,7 +72,6 @@
     @endif
 
     <form method="POST" action="{{ route('installer.requirements.store') }}" class="mt-8">
-        @csrf
         <div class="flex justify-between">
             <a href="{{ route('installer.welcome') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-8 rounded-lg transition duration-200">
                 Back

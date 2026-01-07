@@ -7,32 +7,31 @@
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Database Configuration</h2>
     
     <form method="POST" action="{{ route('installer.database.store') }}" id="databaseForm">
-        @csrf
         
         <div class="space-y-4">
             <div>
                 <label for="host" class="block text-gray-700 font-semibold mb-2">Database Host</label>
-                <input type="text" name="host" id="host" value="{{ old('host', '127.0.0.1') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="text" name="host" id="host" value="127.0.0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="port" class="block text-gray-700 font-semibold mb-2">Database Port</label>
-                <input type="number" name="port" id="port" value="{{ old('port', '3306') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="number" name="port" id="port" value="3306" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="database" class="block text-gray-700 font-semibold mb-2">Database Name</label>
-                <input type="text" name="database" id="database" value="{{ old('database') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="text" name="database" id="database" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="username" class="block text-gray-700 font-semibold mb-2">Database Username</label>
-                <input type="text" name="username" id="username" value="{{ old('username') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="text" name="username" id="username" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="password" class="block text-gray-700 font-semibold mb-2">Database Password</label>
-                <input type="password" name="password" id="password" value="{{ old('password') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" name="password" id="password" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
         </div>
 

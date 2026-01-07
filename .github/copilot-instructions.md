@@ -36,6 +36,7 @@
 - **Installer uses custom middleware group WITHOUT `EncryptCookies`**: Prevents `MissingAppKeyException` before APP_KEY is generated
 - Custom `installer` middleware group includes: `ValidatePostSize`, `ConvertEmptyStringsToNull`, `SubstituteBindings`, `RedirectIfInstalled`
 - **Never use `web` middleware for installer routes** - it requires APP_KEY for cookie encryption
+- **Installer views must be stateless** (no CSRF, no old(), no $errors) - validation handled explicitly via controller
 - Global `EnsureInstalled` middleware on `web` group redirects non-installer routes until installation completes
 
 ### Environment Management

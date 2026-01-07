@@ -13,12 +13,11 @@
     </div>
 
     <form method="POST" action="{{ route('installer.license.store') }}" id="licenseForm">
-        @csrf
         
         <div class="space-y-4">
             <div>
                 <label for="purchase_code" class="block text-gray-700 font-semibold mb-2">Purchase Code</label>
-                <input type="text" name="purchase_code" id="purchase_code" value="{{ old('purchase_code') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                <input type="text" name="purchase_code" id="purchase_code" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
             </div>
         </div>
 
@@ -44,7 +43,6 @@
     </div>
 
     <form method="POST" action="{{ route('installer.license.store') }}">
-        @csrf
         <div class="flex justify-between mt-8">
             <a href="{{ route('installer.database') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-8 rounded-lg transition duration-200">
                 Back

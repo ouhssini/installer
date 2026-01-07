@@ -20,7 +20,6 @@
     </div>
 
     <form method="POST" action="{{ route('installer.welcome.store') }}">
-        @csrf
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200">
             Get Started
         </button>
