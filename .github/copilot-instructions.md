@@ -32,6 +32,12 @@
 
 ## Critical Conventions
 
+### Middleware Architecture (CRITICAL!)
+- **Installer uses custom middleware group WITHOUT `EncryptCookies`**: Prevents `MissingAppKeyException` before APP_KEY is generated
+- Custom `installer` middleware group includes: `ValidatePostSize`, `ConvertEmptyStringsToNull`, `SubstituteBindings`, `RedirectIfInstalled`
+- **Never use `web` middleware for installer routes** - it requires APP_KEY for cookie encryption
+- Global `EnsureInstalled` middleware on `web` group redirects non-installer routes until installation completes
+
 ### Environment Management
 - **Package `.env.example` is authoritative**: Always use `__DIR__.'/../../.env.example'` in `EnvironmentManager`
 - Database drivers (session, cache, queue) switched automatically on finalize via `switchToDatabaseDrivers()`

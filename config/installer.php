@@ -45,7 +45,7 @@ return [
     // Routes
     'routes' => [
         'prefix' => 'install',
-        'middleware' => ['web', 'installer.redirect'],
+        'middleware' => 'installer',
         'redirect_after_install' => 'dashboard',
     ],
 

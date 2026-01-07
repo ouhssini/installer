@@ -10,7 +10,7 @@ use SoftCortex\Installer\Http\Controllers\RequirementsController;
 use SoftCortex\Installer\Http\Controllers\WelcomeController;
 
 Route::prefix(config('installer.routes.prefix', 'install'))
-    ->middleware(config('installer.routes.middleware', ['web', 'installer.redirect']))
+    ->middleware('installer')
     ->group(function () {
 
         // Step 1: Welcome

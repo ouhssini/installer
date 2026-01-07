@@ -53,6 +53,14 @@ class InstallerServiceProvider extends PackageServiceProvider
         $router->aliasMiddleware('installer.redirect', RedirectIfInstalled::class);
         $router->aliasMiddleware('installer.ensure', EnsureInstalled::class);
 
+        // Create installer middleware group (without EncryptCookies to avoid APP_KEY requirement)
+        $router->middlewareGroup('installer', [
+            \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+            \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            RedirectIfInstalled::class,
+        ]);
+
         // Register global middleware to protect all routes
         $router->pushMiddlewareToGroup('web', EnsureInstalled::class);
     }
