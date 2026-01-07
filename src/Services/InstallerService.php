@@ -2,7 +2,9 @@
 namespace SoftCortex\Installer\Services;
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class InstallerService
@@ -150,7 +152,7 @@ class InstallerService
     private function isDatabaseAvailable(): bool
     {
         try {
-            return \Illuminate\Support\Facades\Schema::hasTable('settings');
+            return Schema::hasTable('settings');
         } catch (\Exception $e) {
             return false;
         }
@@ -166,29 +168,29 @@ class InstallerService
         }
 
         try {
-            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
+            DB::table('settings')->updateOrInsert(
                 ['key' => 'app_installed'],
                 [
                     'value'      => 'true',
                     'updated_at' => now(),
                     'created_at' => now(),
-                    //  if category column exists, set it to 'Installer' and changable False 
+                    //  if category column exists, set it to 'Installer' and changable False
                     'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
-                    'changeable' => Schema::hasColumn('settings', 'changeable') ? false : null,
+                    'changeable' => Schema::hasColumn('settings', 'changeable') ? 0 : 1,
                 ]
             );
 
             $installationDate = $this->getSetting('installation_date');
             if ($installationDate) {
-                \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
+                DB::table('settings')->updateOrInsert(
                     ['key' => 'installation_date'],
                     [
                         'value'      => $installationDate,
                         'updated_at' => now(),
                         'created_at' => now(),
-                      //  if category  column exists, set it to 'Installer' and changable False 
+                        //  if category  column exists, set it to 'Installer' and changable False
                         'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
-                        'changeable' => Schema::hasColumn('settings', 'changeable') ? false : null,
+                        'changeable' => Schema::hasColumn('settings', 'changeable') ? 0 : 1,
                     ]
                 );
             }
@@ -237,7 +239,7 @@ class InstallerService
         //  clear database settings if available
         if ($this->isDatabaseAvailable()) {
             try {
-                \Illuminate\Support\Facades\DB::table('settings')->whereIn('key', [
+                DB::table('settings')->whereIn('key', [
                     'app_installed',
                     'installation_date',
                 ])->delete();
@@ -256,27 +258,24 @@ class InstallerService
         }
     }
 
-
-
-
-      /**
+    /**
      * Switch environment to use database drivers
      */
     private function switchToDatabaseDrivers(): void
     {
         try {
             $this->environment->setMultiple([
-                'SESSION_DRIVER' => 'database',
-                'CACHE_STORE' => 'database',
+                'SESSION_DRIVER'   => 'database',
+                'CACHE_STORE'      => 'database',
                 'QUEUE_CONNECTION' => 'database',
             ]);
 
-            \Illuminate\Support\Facades\Log::info('Switched to database drivers for session, cache, and queue');
+            Log::info('Switched to database drivers for session, cache, and queue');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed to switch to database drivers', [
+            Log::warning('Failed to switch to database drivers', [
                 'error' => $e->getMessage(),
             ]);
         }
     }
-    
+
 }

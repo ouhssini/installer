@@ -17,6 +17,29 @@ class AppConfigController extends Controller
 
     public function index()
     {
+        // Initialize .env from package's .env.example if it doesn't exist
+        if (!$this->environment->envFileExists()) {
+            $initialized = $this->environment->initializeFromExample();
+
+            if (!$initialized) {
+                return back()->withErrors([
+                    'env' => 'Failed to create .env file. Please ensure the package is properly installed.',
+                ]);
+            }
+
+            // Generate new APP_KEY
+            $this->environment->generateAppKey();
+
+            // Clear config cache to load new .env values
+            try {
+                \Illuminate\Support\Facades\Artisan::call('config:clear');
+                \Illuminate\Support\Facades\Artisan::call('route:clear');
+                \Illuminate\Support\Facades\Artisan::call('cache:clear');
+            } catch (\Exception $e) {
+                // Silently continue if cache clear fails
+            }
+        }
+
         // Get available locales from lang directory
         $availableLocales = $this->getAvailableLocales();
 
