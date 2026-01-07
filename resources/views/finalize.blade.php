@@ -11,7 +11,7 @@
     </div>
 
     <h2 class="text-2xl font-bold text-gray-800 mb-4">Installation Complete!</h2>
-    
+
     <p class="text-gray-700 mb-8">Your application has been successfully installed and configured.</p>
 
     <div class="text-left bg-gray-50 p-6 rounded-lg mb-8">

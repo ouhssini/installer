@@ -6,10 +6,10 @@
 <div class="text-center">
     <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to {{ $product['name'] ?? 'Application' }} Installation</h2>
     <p class="text-gray-600 mb-6">Version {{ $product['version'] ?? '1.0.0' }}</p>
-    
+
     <div class="text-left bg-gray-50 p-6 rounded-lg mb-8">
         <p class="text-gray-700 mb-4">{{ $product['description'] ?? 'Professional Laravel application with installer wizard' }}</p>
-        
+
         <h3 class="font-semibold text-gray-800 mb-2">Before you begin:</h3>
         <ul class="list-disc list-inside text-gray-700 space-y-2">
             <li>Ensure your server meets the minimum requirements</li>

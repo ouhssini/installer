@@ -5,11 +5,11 @@
 @section('content')
 <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Create Admin Account</h2>
-    
+
     <p class="text-gray-700 mb-6">Create your administrator account to manage the application.</p>
 
     <form method="POST" action="{{ route('installer.admin.store') }}">
-        
+
         <div class="space-y-4">
             <div>
                 <label for="name" class="block text-gray-700 font-semibold mb-2">Full Name</label>

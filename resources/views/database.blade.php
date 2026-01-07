@@ -5,9 +5,9 @@
 @section('content')
 <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Database Configuration</h2>
-    
+
     <form method="POST" action="{{ route('installer.database.store') }}" id="databaseForm">
-        
+
         <div class="space-y-4">
             <div>
                 <label for="host" class="block text-gray-700 font-semibold mb-2">Database Host</label>
@@ -63,13 +63,13 @@
 document.getElementById('testConnection').addEventListener('click', function() {
     const button = this;
     const result = document.getElementById('testResult');
-    
+
     button.disabled = true;
     button.textContent = 'Testing...';
     result.textContent = '';
-    
+
     const formData = new FormData(document.getElementById('databaseForm'));
-    
+
     fetch('{{ route('installer.database.test') }}', {
         method: 'POST',
         headers: {

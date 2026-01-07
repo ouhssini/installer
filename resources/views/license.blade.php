@@ -5,7 +5,7 @@
 @section('content')
 <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-6">License Verification</h2>
-    
+
     @if($licenseEnabled)
     <div class="mb-6">
         <p class="text-gray-700 mb-4">Please enter your Envato purchase code to verify your license.</p>
@@ -13,7 +13,7 @@
     </div>
 
     <form method="POST" action="{{ route('installer.license.store') }}" id="licenseForm">
-        
+
         <div class="space-y-4">
             <div>
                 <label for="purchase_code" class="block text-gray-700 font-semibold mb-2">Purchase Code</label>
@@ -67,16 +67,16 @@ document.getElementById('verifyLicense').addEventListener('click', function() {
     const button = this;
     const result = document.getElementById('verifyResult');
     const purchaseCode = document.getElementById('purchase_code').value;
-    
+
     if (!purchaseCode) {
         result.innerHTML = '<span class="text-red-600 font-semibold">Please enter a purchase code</span>';
         return;
     }
-    
+
     button.disabled = true;
     button.textContent = 'Verifying...';
     result.textContent = '';
-    
+
     fetch('{{ route('installer.license.verify') }}', {
         method: 'POST',
         headers: {

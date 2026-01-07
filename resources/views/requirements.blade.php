@@ -5,7 +5,7 @@
 @section('content')
 <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Server Requirements</h2>
-    
+
     <div class="space-y-6">
         <!-- PHP Version -->
         <div class="border rounded-lg p-4">
