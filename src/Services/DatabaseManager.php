@@ -81,8 +81,11 @@ class DatabaseManager
         $output = [];
 
         try {
-            // Create settings table first
-            $this->createSettingsTable();
+            // Only create settings table programmatically if migration doesn't exist
+            // This prevents conflict when users publish the migration
+            if (!$this->migrationExists('create_settings_table')) {
+                $this->createSettingsTable();
+            }
 
             // Run all migrations
             Artisan::call('migrate', ['--force' => true]);
@@ -99,6 +102,28 @@ class DatabaseManager
                 'error' => $e->getMessage(),
             ];
         }
+    }
+
+    /**
+     * Check if a migration file exists in the project
+     */
+    private function migrationExists(string $migrationName): bool
+    {
+        $migrationsPath = database_path('migrations');
+
+        if (!is_dir($migrationsPath)) {
+            return false;
+        }
+
+        $files = scandir($migrationsPath);
+
+        foreach ($files as $file) {
+            if (str_contains($file, $migrationName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
