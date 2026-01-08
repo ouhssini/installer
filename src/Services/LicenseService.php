@@ -22,6 +22,20 @@ class LicenseService
     public function verify(string $purchaseCode): LicenseVerificationResult
     {
         try {
+            // Development mode - bypass with test code
+            if (config('installer.license.dev_mode', false)) {
+                if ($purchaseCode === 'dev-test-code-12345678-1234') {
+                    return new LicenseVerificationResult(
+                        valid: true,
+                        itemName: 'Development Test Item',
+                        buyerName: 'Developer',
+                        purchaseDate: now()->toDateTimeString(),
+                        supportedUntil: now()->addYear()->toDateTimeString(),
+                        licenseType: 'regular'
+                    );
+                }
+            }
+
             $personalToken = config('installer.license.envato_personal_token');
 
             if (empty($personalToken)) {

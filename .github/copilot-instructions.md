@@ -49,6 +49,8 @@
 - API endpoint: `https://api.envato.com/v3/market/author/sale?code={code}`
 - Requires Bearer token from `https://build.envato.com/create-token/`
 - Store only: `license_hash` (SHA-256), `license_data` (JSON metadata) - **never the purchase code**
+- **Dev Mode**: Set `LICENSE_DEV_MODE=true` and use test code `dev-test-code-12345678-1234` to bypass Envato API in development
+- **Skip License**: Set `LICENSE_ENABLED=false` to skip license step entirely
 
 ### Service Provider Patterns
 ```php

@@ -35,6 +35,8 @@ return [
     // License verification
     'license' => [
         'enabled' => env('LICENSE_ENABLED', true),
+        // Development mode - allows test purchase codes
+        'dev_mode' => env('LICENSE_DEV_MODE', false),
         // Envato Personal Token - Get from: https://build.envato.com/create-token/
         // Required scopes: View and search Envato sites, View the user's account username
         'envato_personal_token' => env('ENVATO_PERSONAL_TOKEN', ''),
