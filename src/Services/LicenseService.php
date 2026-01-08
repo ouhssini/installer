@@ -175,7 +175,7 @@ class LicenseService
         $hash = hash('sha256', $purchaseCode);
         $this->installer->setSetting('license_hash', $hash);
 
-        // Store license data (without purchase code)
+        // Store license data as array (InstallerService handles JSON encoding)
         $licenseData = [
             'item_name' => $data['item_name'] ?? null,
             'buyer' => $data['buyer'] ?? null,
@@ -188,7 +188,7 @@ class LicenseService
             'enabled' => true,
         ];
 
-        $this->installer->setSetting('license_data', json_encode($licenseData));
+        $this->installer->setSetting('license_data', $licenseData);
     }
 
     /**
@@ -200,6 +200,11 @@ class LicenseService
 
         if (! $data) {
             return null;
+        }
+
+        // Handle both array (new) and JSON string (old) formats
+        if (is_array($data)) {
+            return $data;
         }
 
         return json_decode($data, true);
@@ -216,6 +221,6 @@ class LicenseService
             'reason' => 'License verification disabled in configuration',
         ];
 
-        $this->installer->setSetting('license_data', json_encode($licenseData));
+        $this->installer->setSetting('license_data', $licenseData);
     }
 }

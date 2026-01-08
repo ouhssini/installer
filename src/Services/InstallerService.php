@@ -207,7 +207,7 @@ class InstallerService
             $hasCategory = Schema::hasColumn('settings', 'category');
             $hasChangeable = Schema::hasColumn('settings', 'changeable');
 
-            // Build data array based on available columns
+            // Sync app_installed
             $appInstalledData = [
                 'value' => 'true',
                 'updated_at' => now(),
@@ -221,7 +221,6 @@ class InstallerService
                 $appInstalledData['changeable'] = false;
             }
 
-            // Only set created_at if inserting new record
             if (! DB::table('settings')->where('key', 'app_installed')->exists()) {
                 $appInstalledData['created_at'] = now();
             }
@@ -231,7 +230,7 @@ class InstallerService
                 $appInstalledData
             );
 
-            // Sync installation date
+            // Sync installation_date
             $installationDate = $this->getSetting('installation_date');
             if ($installationDate) {
                 $installationDateData = [
@@ -247,7 +246,6 @@ class InstallerService
                     $installationDateData['changeable'] = false;
                 }
 
-                // Only set created_at if inserting new record
                 if (! DB::table('settings')->where('key', 'installation_date')->exists()) {
                     $installationDateData['created_at'] = now();
                 }
@@ -255,6 +253,61 @@ class InstallerService
                 DB::table('settings')->updateOrInsert(
                     ['key' => 'installation_date'],
                     $installationDateData
+                );
+            }
+
+            // Sync license_hash
+            $licenseHash = $this->getSetting('license_hash');
+            if ($licenseHash) {
+                $licenseHashData = [
+                    'value' => $licenseHash,
+                    'updated_at' => now(),
+                ];
+
+                if ($hasCategory) {
+                    $licenseHashData['category'] = 'License';
+                }
+
+                if ($hasChangeable) {
+                    $licenseHashData['changeable'] = false;
+                }
+
+                if (! DB::table('settings')->where('key', 'license_hash')->exists()) {
+                    $licenseHashData['created_at'] = now();
+                }
+
+                DB::table('settings')->updateOrInsert(
+                    ['key' => 'license_hash'],
+                    $licenseHashData
+                );
+            }
+
+            // Sync license_data
+            $licenseData = $this->getSetting('license_data');
+            if ($licenseData) {
+                // Convert array to JSON string for database storage
+                $licenseValue = is_array($licenseData) ? json_encode($licenseData) : $licenseData;
+
+                $licenseDataSettings = [
+                    'value' => $licenseValue,
+                    'updated_at' => now(),
+                ];
+
+                if ($hasCategory) {
+                    $licenseDataSettings['category'] = 'License';
+                }
+
+                if ($hasChangeable) {
+                    $licenseDataSettings['changeable'] = false;
+                }
+
+                if (! DB::table('settings')->where('key', 'license_data')->exists()) {
+                    $licenseDataSettings['created_at'] = now();
+                }
+
+                DB::table('settings')->updateOrInsert(
+                    ['key' => 'license_data'],
+                    $licenseDataSettings
                 );
             }
         } catch (\Exception $e) {
