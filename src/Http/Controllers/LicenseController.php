@@ -76,6 +76,9 @@ class LicenseController extends Controller
                     'purchase_code' => $request->purchase_code,
                 ]);
             }
+        } else {
+            // Store disabled status
+            $this->license->storeDisabledStatus();
         }
 
         $this->installer->completeStep(5);

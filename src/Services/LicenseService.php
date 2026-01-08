@@ -25,10 +25,20 @@ class LicenseService
             // Development mode - bypass with test code
             if (config('installer.license.dev_mode', false)) {
                 if ($purchaseCode === 'dev-test-code-12345678-1234') {
+                    // Store dev mode license data
+                    $this->storeLicense($purchaseCode, [
+                        'item_name' => 'Development Test Item',
+                        'buyer' => 'Ouhssini',
+                        'purchased_at' => now()->toDateTimeString(),
+                        'supported_until' => now()->addYear()->toDateTimeString(),
+                        'license_type' => 'regular',
+                        'item_id' => 'dev-mode',
+                    ], true); // Mark as dev mode
+
                     return new LicenseVerificationResult(
                         valid: true,
                         itemName: 'Development Test Item',
-                        buyerName: 'Developer',
+                        buyerName: 'Ouhssini',
                         purchaseDate: now()->toDateTimeString(),
                         supportedUntil: now()->addYear()->toDateTimeString(),
                         licenseType: 'regular'
@@ -159,7 +169,7 @@ class LicenseService
     /**
      * Store license data (hashed reference only)
      */
-    public function storeLicense(string $purchaseCode, array $data): void
+    public function storeLicense(string $purchaseCode, array $data, bool $devMode = false): void
     {
         // Store hashed license reference
         $hash = hash('sha256', $purchaseCode);
@@ -174,6 +184,8 @@ class LicenseService
             'license_type' => $data['license_type'] ?? null,
             'item_id' => $data['item_id'] ?? null,
             'verified_at' => now()->toDateTimeString(),
+            'dev_mode' => $devMode,
+            'enabled' => true,
         ];
 
         $this->installer->setSetting('license_data', json_encode($licenseData));
@@ -191,5 +203,19 @@ class LicenseService
         }
 
         return json_decode($data, true);
+    }
+
+    /**
+     * Store disabled license status
+     */
+    public function storeDisabledStatus(): void
+    {
+        $licenseData = [
+            'enabled' => false,
+            'skipped_at' => now()->toDateTimeString(),
+            'reason' => 'License verification disabled in configuration',
+        ];
+
+        $this->installer->setSetting('license_data', json_encode($licenseData));
     }
 }
