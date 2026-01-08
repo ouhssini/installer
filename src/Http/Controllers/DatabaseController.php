@@ -81,6 +81,25 @@ class DatabaseController extends Controller
             $this->database->writeConfiguration($credentials);
             Log::info('Database configuration written');
 
+            // Run migrations
+            Log::info('Running database migrations');
+            $result = $this->database->runMigrations();
+
+            if (! $result['success']) {
+                Log::error('Migration failed', [
+                    'error' => $result['error'] ?? 'Unknown error',
+                    'output' => $result['output'] ?? [],
+                ]);
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'database' => 'Migration failed: '.($result['error'] ?? 'Unknown error'),
+                    ]);
+            }
+
+            Log::info('Migrations completed successfully');
+
             $this->installer->completeStep(4);
             $this->installer->setCurrentStep(5);
 

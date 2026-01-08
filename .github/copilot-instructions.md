@@ -19,10 +19,10 @@
   - Step 1: Welcome - Introduction and installer start, redirects to App Config
   - Step 2: App Config - Creates .env from package `.env.example`, generates `APP_KEY`, sets app details (name, URL, timezone, locale)
   - Step 3: Requirements - PHP version, extensions, directory permissions check
-  - Step 4: Database - Database configuration, connection test, saves credentials to .env
+  - Step 4: Database - Database configuration, connection test, saves credentials to .env, **runs migrations**
   - Step 5: License - Envato purchase code validation (optional, skipped if `LICENSE_ENABLED=false`)
-  - Step 6: Admin - Create administrator account  
-  - Step 7: Finalize - **Runs migrations**, switches to database drivers, locks installer, redirects to application
+  - Step 6: Admin - Create administrator account (requires migrations to have run)
+  - Step 7: Finalize - Switches to database drivers, locks installer, redirects to application
   - Global middleware (`EnsureInstalled`) redirects all non-installer routes to `/install` until completed
   - Controllers follow pattern: `index()` shows form, `store()` saves data and advances step
 
