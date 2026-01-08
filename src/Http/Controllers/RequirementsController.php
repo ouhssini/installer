@@ -21,6 +21,11 @@ class RequirementsController extends Controller
             return redirect()->route('installer.app-config');
         }
 
+        // Allow access if step 3 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(3)) {
+            return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
+        }
+
         $requirements = $this->checker->check();
 
         return view('installer::requirements', [

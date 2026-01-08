@@ -29,24 +29,63 @@
         @if(isset($currentStep))
             <div class="mb-8">
                 <div class="flex justify-between items-center">
-                    @foreach(['Welcome', 'App Config', 'Requirements', 'Database', 'License', 'Admin', 'Finalize'] as $index => $step)
+                    @php
+                        $installer = app(\SoftCortex\Installer\Services\InstallerService::class);
+                        $steps = [
+                            ['name' => 'Welcome', 'route' => 'installer.welcome'],
+                            ['name' => 'App Config', 'route' => 'installer.app-config'],
+                            ['name' => 'Requirements', 'route' => 'installer.requirements'],
+                            ['name' => 'Database', 'route' => 'installer.database'],
+                            ['name' => 'License', 'route' => 'installer.license'],
+                            ['name' => 'Admin', 'route' => 'installer.admin'],
+                            ['name' => 'Finalize', 'route' => 'installer.finalize'],
+                        ];
+                    @endphp
+
+                    @foreach($steps as $index => $step)
+                        @php
+                            $stepNumber = $index + 1;
+                            $isCompleted = $installer->isStepCompleted($stepNumber);
+                            $isAccessible = $installer->isStepAccessible($stepNumber);
+                            $isCurrent = $stepNumber == $currentStep;
+                        @endphp
+
                         <div class="flex-1 text-center">
                             <div class="relative">
-                                <div class="w-10 h-10 mx-auto rounded-full
-                                    {{ ($index + 1) <= $currentStep ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' }}
-                                    flex items-center justify-center font-semibold">
-                                    {{ $index + 1 }}
-                                </div>
-                                <div class="text-xs mt-2
-                                    {{ ($index + 1) == $currentStep ? 'text-blue-600 font-semibold' : 'text-gray-600' }}">
-                                    {{ $step }}
-                                </div>
+                                @if($isAccessible)
+                                    <a href="{{ route($step['route']) }}" class="block">
+                                        <div class="w-10 h-10 mx-auto rounded-full transition-all
+                                            {{ $isCompleted ? 'bg-green-600 text-white' : ($isCurrent ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600') }}
+                                            flex items-center justify-center font-semibold hover:ring-2 hover:ring-offset-2
+                                            {{ $isCompleted ? 'hover:ring-green-400' : 'hover:ring-blue-400' }}">
+                                            @if($isCompleted)
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            @else
+                                                {{ $stepNumber }}
+                                            @endif
+                                        </div>
+                                        <div class="text-xs mt-2
+                                            {{ $isCurrent ? 'text-blue-600 font-semibold' : ($isCompleted ? 'text-green-600' : 'text-gray-600') }}">
+                                            {{ $step['name'] }}
+                                        </div>
+                                    </a>
+                                @else
+                                    <div class="w-10 h-10 mx-auto rounded-full bg-gray-200 text-gray-400
+                                        flex items-center justify-center font-semibold cursor-not-allowed">
+                                        {{ $stepNumber }}
+                                    </div>
+                                    <div class="text-xs mt-2 text-gray-400">
+                                        {{ $step['name'] }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
                         @if($index < 6)
                             <div class="flex-1 h-1
-                                {{ ($index + 1) < $currentStep ? 'bg-blue-600' : 'bg-gray-300' }}">
+                                {{ $isCompleted ? 'bg-green-600' : (($index + 1) < $currentStep ? 'bg-blue-600' : 'bg-gray-300') }}">
                             </div>
                         @endif
                     @endforeach

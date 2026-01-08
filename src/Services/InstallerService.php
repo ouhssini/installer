@@ -141,9 +141,44 @@ class InstallerService
     /**
      * Get all completed steps
      */
-    private function getCompletedSteps(): array
+    public function getCompletedSteps(): array
     {
         return $this->getSetting('completed_steps', []);
+    }
+
+    /**
+     * Check if a step is accessible (completed or next available)
+     */
+    public function isStepAccessible(int $step): bool
+    {
+        return $this->isStepCompleted($step) || $step === $this->getNextAvailableStep();
+    }
+
+    /**
+     * Get the next available step (max completed + 1)
+     */
+    public function getNextAvailableStep(): int
+    {
+        $completed = $this->getCompletedSteps();
+        return empty($completed) ? 1 : max($completed) + 1;
+    }
+
+    /**
+     * Get route name for a step number
+     */
+    public function getStepRoute(int $step): string
+    {
+        $routes = [
+            1 => 'installer.welcome',
+            2 => 'installer.app-config',
+            3 => 'installer.requirements',
+            4 => 'installer.database',
+            5 => 'installer.license',
+            6 => 'installer.admin',
+            7 => 'installer.finalize',
+        ];
+
+        return $routes[$step] ?? 'installer.welcome';
     }
 
     /**

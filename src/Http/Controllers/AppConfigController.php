@@ -22,6 +22,11 @@ class AppConfigController extends Controller
             return redirect()->route('installer.welcome');
         }
 
+        // Allow access if step 2 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(2)) {
+            return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
+        }
+
         // Initialize .env from package's .env.example if it doesn't exist
         if (!$this->environment->envFileExists()) {
             $initialized = $this->environment->initializeFromExample();

@@ -22,6 +22,11 @@ class DatabaseController extends Controller
             return redirect()->route('installer.requirements');
         }
 
+        // Allow access if step 4 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(4)) {
+            return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
+        }
+
         return view('installer::database');
     }
 
@@ -131,7 +136,7 @@ class DatabaseController extends Controller
                 'error' => 'Configuration failed: '.$e->getMessage(),
                 'credentials' => $credentials ?? [],
             ]);
-                
+
         }
     }
 }

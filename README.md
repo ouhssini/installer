@@ -39,26 +39,36 @@ composer require softcortex/magic-installer
 
 > **Note**: The installer uses file-based storage (`storage/app/.installed` and `storage/app/installer-settings.json`) and does NOT require database setup before running. This means it works immediately after `composer require` without any database configuration.
 
-> **Environment Setup**: The installer will automatically create a `.env` file from `.env.example` and generate a new `APP_KEY` during the first step. No manual `.env` setup is required!
+### Publish Assets (Recommended Before Installation)
 
-### Publish Assets
+**For developers distributing this as part of their product:**
+
+1. **Publish the `.env.example` file** (includes pre-configured Envato settings):
+
+```bash
+php artisan vendor:publish --tag="installer-env"
+```
+
+2. **Edit the published `.env.example`** in your project root and add your Envato credentials:
+
+```env
+LICENSE_ENABLED=true
+LICENSE_DEV_MODE=false
+ENVATO_PERSONAL_TOKEN=your-token-here
+ENVATO_ITEM_ID=12345678
+```
+
+3. The installer will use **your customized `.env.example`** as the template when creating `.env` during installation.
+
+> **Why publish `.env.example`?** The installer prioritizes the project's `.env.example` over the package's version. This allows you to pre-configure Envato tokens and other settings for your end users.
+
+**Optional: Publish other assets**
 
 Publish the configuration file:
 
 ```bash
 php artisan vendor:publish --tag="installer-config"
 ```
-
-Optionally, publish the `.env.example` file (configured with database drivers for cache, session, and queue):
-
-```bash
-php artisan vendor:publish --tag="installer-env"
-```
-
-> **Note**: If the `.env.example` file already exists, use the `--force` flag to overwrite it:
-> ```bash
-> php artisan vendor:publish --tag="installer-env" --force
-> ```
 
 Optionally, publish the views for customization:
 

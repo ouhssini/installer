@@ -19,6 +19,11 @@ class FinalizeController extends Controller
             return redirect()->route('installer.admin');
         }
 
+        // Allow access if step 7 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(7)) {
+            return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
+        }
+
         return view('installer::finalize');
     }
 

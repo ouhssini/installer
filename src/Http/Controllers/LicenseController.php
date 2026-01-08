@@ -21,6 +21,11 @@ class LicenseController extends Controller
             return redirect()->route('installer.database');
         }
 
+        // Allow access if step 5 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(5)) {
+            return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
+        }
+
         $licenseEnabled = config('installer.license.enabled', true);
 
         return view('installer::license', [

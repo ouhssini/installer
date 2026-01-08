@@ -43,7 +43,9 @@
 - Global `EnsureInstalled` middleware on `web` group redirects non-installer routes until installation completes
 
 ### Environment Management
-- **Package `.env.example` is authoritative**: Always use `__DIR__.'/../../.env.example'` in `EnvironmentManager`
+- **Package `.env.example` is authoritative by default**: Uses `__DIR__.'/../../.env.example'` in `EnvironmentManager`
+- **Priority order**: Project's `.env.example` (if published) > Package's `.env.example`
+- **Workflow for developers**: Publish `.env.example` with `--tag="installer-env"`, customize with Envato token, installer uses it as template
 - Database drivers (session, cache, queue) switched automatically on finalize via `switchToDatabaseDrivers()`
 - Never manually edit `.env` - use `EnvironmentManager::set()` or `setMultiple()`
 

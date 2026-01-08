@@ -26,6 +26,11 @@ class AdminController extends Controller
             return redirect()->route('installer.database');
         }
 
+        // Allow access if step 6 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(6)) {
+            return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
+        }
+
         return view('installer::admin');
     }
 
