@@ -102,20 +102,19 @@ class DatabaseManager
     }
 
     /**
-     * Create the settings table
+     * Create the settings table using Laravel Schema builder
      */
     public function createSettingsTable(): void
     {
         if (! DB::getSchemaBuilder()->hasTable('settings')) {
-            DB::statement('
-                CREATE TABLE settings (
-                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                    `key` VARCHAR(255) NOT NULL UNIQUE,
-                    `value` TEXT NULL,
-                    created_at TIMESTAMP NULL,
-                    updated_at TIMESTAMP NULL
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-            ');
+            DB::getSchemaBuilder()->create('settings', function ($table) {
+                $table->id();
+                $table->string('key')->unique();
+                $table->text('value')->nullable();
+                $table->string('category')->nullable();
+                $table->boolean('changeable')->default(true);
+                $table->timestamps();
+            });
         }
     }
 }

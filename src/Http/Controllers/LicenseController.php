@@ -16,6 +16,11 @@ class LicenseController extends Controller
 
     public function index()
     {
+        // Ensure step 4 (Database) is completed
+        if (!$this->installer->isStepCompleted(4)) {
+            return redirect()->route('installer.database');
+        }
+
         $licenseEnabled = config('installer.license.enabled', true);
 
         return view('installer::license', [

@@ -17,6 +17,15 @@ class AdminController extends Controller
 
     public function index()
     {
+        // Ensure step 5 (License) is completed OR license is disabled
+        $licenseEnabled = config('installer.license.enabled', true);
+        if ($licenseEnabled && !$this->installer->isStepCompleted(5)) {
+            return redirect()->route('installer.license');
+        } elseif (!$licenseEnabled && !$this->installer->isStepCompleted(4)) {
+            // If license disabled, ensure at least step 4 (Database) is completed
+            return redirect()->route('installer.database');
+        }
+
         return view('installer::admin');
     }
 

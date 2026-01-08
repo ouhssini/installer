@@ -17,6 +17,11 @@ class AppConfigController extends Controller
 
     public function index()
     {
+        // Ensure step 1 (Welcome) is completed
+        if (!$this->installer->isStepCompleted(1)) {
+            return redirect()->route('installer.welcome');
+        }
+
         // Initialize .env from package's .env.example if it doesn't exist
         if (!$this->environment->envFileExists()) {
             $initialized = $this->environment->initializeFromExample();

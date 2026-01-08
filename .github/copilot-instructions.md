@@ -19,12 +19,13 @@
   - Step 1: Welcome - Introduction and installer start, redirects to App Config
   - Step 2: App Config - Creates .env from package `.env.example`, generates `APP_KEY`, sets app details (name, URL, timezone, locale)
   - Step 3: Requirements - PHP version, extensions, directory permissions check
-  - Step 4: Database - Database configuration, connection test, saves credentials to .env, **runs migrations**
+  - Step 4: Database - Database configuration, connection test, saves credentials to .env, **runs migrations**, **creates settings table using Schema builder**
   - Step 5: License - Envato purchase code validation (optional, skipped if `LICENSE_ENABLED=false`)
   - Step 6: Admin - Create administrator account (requires migrations to have run)
-  - Step 7: Finalize - Switches to database drivers, locks installer, redirects to application
+  - Step 7: Finalize - Switches to database drivers, **syncs installation data to database**, locks installer, redirects to application
+  - **Step Validation**: Each controller checks if previous steps are completed via `isStepCompleted()` - redirects to correct step if accessing out of order
   - Global middleware (`EnsureInstalled`) redirects all non-installer routes to `/install` until completed
-  - Controllers follow pattern: `index()` shows form, `store()` saves data and advances step
+  - Controllers follow pattern: `index()` shows form (with step validation), `store()` saves data and advances step
 
 - **Testing**: Pest with property-based tests (`tests/Property/`) for high assertion coverage (39K+ assertions)
   - Each feature has 100-repeat property tests generating random valid inputs
@@ -109,6 +110,9 @@ php artisan vendor:publish --tag="installer-migration"   # Publish migration fil
 3. **Wrap `Artisan::call('cache:clear')` in try-catch** - Testing environments may not have cache tables
 4. **Purchase code validation**: Always validate UUID format before calling Envato API to avoid 404s
 5. **HTTP fakes in tests**: Envato API responses must include `item` object with `id` and `name`
+6. **Step validation**: All controllers must check `isStepCompleted()` for previous steps before rendering views
+7. **Database table creation**: Always use `DB::getSchemaBuilder()->create()` instead of raw SQL for database-agnostic compatibility
+8. **Settings table structure**: Include `category` and `changeable` columns - check column existence before inserting
 
 ## Integration Points
 

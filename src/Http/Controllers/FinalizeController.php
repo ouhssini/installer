@@ -14,6 +14,11 @@ class FinalizeController extends Controller
 
     public function index()
     {
+        // Ensure step 6 (Admin) is completed
+        if (!$this->installer->isStepCompleted(6)) {
+            return redirect()->route('installer.admin');
+        }
+
         return view('installer::finalize');
     }
 

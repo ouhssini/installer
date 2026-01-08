@@ -17,6 +17,11 @@ class DatabaseController extends Controller
 
     public function index()
     {
+        // Ensure step 3 (Requirements) is completed
+        if (!$this->installer->isStepCompleted(3)) {
+            return redirect()->route('installer.requirements');
+        }
+
         return view('installer::database');
     }
 

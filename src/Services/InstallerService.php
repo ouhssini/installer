@@ -168,34 +168,64 @@ class InstallerService
         }
 
         try {
+            // Check if required columns exist
+            $hasCategory = Schema::hasColumn('settings', 'category');
+            $hasChangeable = Schema::hasColumn('settings', 'changeable');
+
+            // Build data array based on available columns
+            $appInstalledData = [
+                'value' => 'true',
+                'updated_at' => now(),
+            ];
+
+            if ($hasCategory) {
+                $appInstalledData['category'] = 'Installer';
+            }
+
+            if ($hasChangeable) {
+                $appInstalledData['changeable'] = false;
+            }
+
+            // Only set created_at if inserting new record
+            if (! DB::table('settings')->where('key', 'app_installed')->exists()) {
+                $appInstalledData['created_at'] = now();
+            }
+
             DB::table('settings')->updateOrInsert(
                 ['key' => 'app_installed'],
-                [
-                    'value'      => 'true',
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                    //  if category column exists, set it to 'Installer' and changable False
-                    'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
-                    'changeable' => Schema::hasColumn('settings', 'changeable') ? 0 : 1,
-                ]
+                $appInstalledData
             );
 
+            // Sync installation date
             $installationDate = $this->getSetting('installation_date');
             if ($installationDate) {
+                $installationDateData = [
+                    'value' => $installationDate,
+                    'updated_at' => now(),
+                ];
+
+                if ($hasCategory) {
+                    $installationDateData['category'] = 'Installer';
+                }
+
+                if ($hasChangeable) {
+                    $installationDateData['changeable'] = false;
+                }
+
+                // Only set created_at if inserting new record
+                if (! DB::table('settings')->where('key', 'installation_date')->exists()) {
+                    $installationDateData['created_at'] = now();
+                }
+
                 DB::table('settings')->updateOrInsert(
                     ['key' => 'installation_date'],
-                    [
-                        'value'      => $installationDate,
-                        'updated_at' => now(),
-                        'created_at' => now(),
-                        //  if category  column exists, set it to 'Installer' and changable False
-                        'category'   => Schema::hasColumn('settings', 'category') ? 'Installer' : null,
-                        'changeable' => Schema::hasColumn('settings', 'changeable') ? 0 : 1,
-                    ]
+                    $installationDateData
                 );
             }
         } catch (\Exception $e) {
-            // Silently fail - file storage is primary during installation
+            Log::warning('Failed to sync installation data to database', [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 

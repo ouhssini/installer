@@ -16,6 +16,11 @@ class RequirementsController extends Controller
 
     public function index()
     {
+        // Ensure step 2 (App Config) is completed
+        if (!$this->installer->isStepCompleted(2)) {
+            return redirect()->route('installer.app-config');
+        }
+
         $requirements = $this->checker->check();
 
         return view('installer::requirements', [
