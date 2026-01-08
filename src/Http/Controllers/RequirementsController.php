@@ -40,8 +40,9 @@ class RequirementsController extends Controller
         $requirements = $this->checker->check();
 
         if (! $requirements['all_satisfied']) {
-            return back()->withErrors([
-                'requirements' => 'Please ensure all server requirements are met before continuing.',
+            return view('installer::requirements', [
+                'requirements' => $requirements,
+                'error' => 'Please ensure all server requirements are met before continuing.',
             ]);
         }
 

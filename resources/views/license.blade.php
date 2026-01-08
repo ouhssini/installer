@@ -7,6 +7,12 @@
     <h2 class="text-2xl font-bold text-gray-800 mb-6">License Verification</h2>
 
     @if($licenseEnabled)
+    @if(isset($error))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <strong>Error:</strong> {{ $error }}
+        </div>
+    @endif
+
     <div class="mb-6">
         <p class="text-gray-700 mb-4">Please enter your Envato purchase code to verify your license.</p>
         <p class="text-sm text-gray-600">You can find your purchase code in your Envato account under Downloads.</p>
@@ -17,7 +23,7 @@
         <div class="space-y-4">
             <div>
                 <label for="purchase_code" class="block text-gray-700 font-semibold mb-2">Purchase Code</label>
-                <input type="text" name="purchase_code" id="purchase_code" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                <input type="text" name="purchase_code" id="purchase_code" value="{{ $purchase_code ?? '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
             </div>
         </div>
 
@@ -80,7 +86,6 @@ document.getElementById('verifyLicense').addEventListener('click', function() {
     fetch('{{ route('installer.license.verify') }}', {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ purchase_code: purchaseCode })

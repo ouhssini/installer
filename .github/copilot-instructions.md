@@ -38,6 +38,8 @@
 - Custom `installer` middleware group includes: `ValidatePostSize`, `ConvertEmptyStringsToNull`, `SubstituteBindings`, `RedirectIfInstalled`
 - **Never use `web` middleware for installer routes** - it requires APP_KEY for cookie encryption
 - **Installer views must be stateless** (no CSRF, no old(), no $errors) - validation handled explicitly via controller
+- **Controllers must be stateless**: Never use `back()->withInput()->withErrors()` - return views directly with `$error` and form data
+- **JavaScript must not use CSRF tokens**: Remove `X-CSRF-TOKEN` headers from fetch requests
 - Global `EnsureInstalled` middleware on `web` group redirects non-installer routes until installation completes
 
 ### Environment Management

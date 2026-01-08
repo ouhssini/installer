@@ -96,11 +96,10 @@ class DatabaseController extends Controller
                     'output' => $result['output'] ?? [],
                 ]);
 
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'database' => 'Migration failed: '.($result['error'] ?? 'Unknown error'),
-                    ]);
+                return view('installer::database', [
+                    'error' => 'Migration failed: '.($result['error'] ?? 'Unknown error'),
+                    'credentials' => $credentials,
+                ]);
             }
 
             Log::info('Migrations completed successfully');
@@ -118,21 +117,20 @@ class DatabaseController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'database' => 'Database connection failed: '.$e->getMessage(),
-                ]);
+            return view('installer::database', [
+                'error' => 'Database connection failed: '.$e->getMessage(),
+                'credentials' => $credentials ?? [],
+            ]);
         } catch (\Exception $e) {
             Log::error('Database configuration exception', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'database' => 'Configuration failed: '.$e->getMessage(),
+            return view('installer::database', [
+                'error' => 'Configuration failed: '.$e->getMessage(),
+                'credentials' => $credentials ?? [],
+            ]);
                 ]);
         }
     }

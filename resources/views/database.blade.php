@@ -6,32 +6,38 @@
 <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Database Configuration</h2>
 
+    @if(isset($error))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <strong>Error:</strong> {{ $error }}
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('installer.database.store') }}" id="databaseForm">
 
         <div class="space-y-4">
             <div>
                 <label for="host" class="block text-gray-700 font-semibold mb-2">Database Host</label>
-                <input type="text" name="host" id="host" value="127.0.0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="text" name="host" id="host" value="{{ $credentials['host'] ?? '127.0.0.1' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="port" class="block text-gray-700 font-semibold mb-2">Database Port</label>
-                <input type="number" name="port" id="port" value="3306" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="number" name="port" id="port" value="{{ $credentials['port'] ?? '3306' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="database" class="block text-gray-700 font-semibold mb-2">Database Name</label>
-                <input type="text" name="database" id="database" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="text" name="database" id="database" value="{{ $credentials['database'] ?? '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="username" class="block text-gray-700 font-semibold mb-2">Database Username</label>
-                <input type="text" name="username" id="username" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="text" name="username" id="username" value="{{ $credentials['username'] ?? '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div>
                 <label for="password" class="block text-gray-700 font-semibold mb-2">Database Password</label>
-                <input type="password" name="password" id="password" value="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" name="password" id="password" value="{{ $credentials['password'] ?? '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
         </div>
 
@@ -72,9 +78,6 @@ document.getElementById('testConnection').addEventListener('click', function() {
 
     fetch('{{ route('installer.database.test') }}', {
         method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
         body: formData
     })
     .then(response => response.json())

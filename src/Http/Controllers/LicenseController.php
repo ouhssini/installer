@@ -65,11 +65,11 @@ class LicenseController extends Controller
             $result = $this->license->verify($request->purchase_code);
 
             if (! $result->isValid()) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'purchase_code' => $result->getError(),
-                    ]);
+                return view('installer::license', [
+                    'licenseEnabled' => $licenseEnabled,
+                    'error' => $result->getError(),
+                    'purchase_code' => $request->purchase_code,
+                ]);
             }
         }
 

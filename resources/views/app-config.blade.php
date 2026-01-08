@@ -7,6 +7,13 @@
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Application Configuration</h2>
     <p class="text-gray-600 mb-6">Configure your application's basic settings</p>
 
+    {{-- General error display --}}
+    @if(isset($error))
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <strong>Error:</strong> {{ $error }}
+        </div>
+    @endif
+
     {{-- Manual validation errors (installer-safe) --}}
     @if(!empty($validationErrors))
         <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">

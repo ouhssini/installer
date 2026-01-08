@@ -65,11 +65,10 @@ class AdminController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return back()
-                ->withInput($request->except('password', 'password_confirmation'))
-                ->withErrors([
-                    'email' => 'Failed to create admin user: '.$e->getMessage(),
-                ]);
+            return view('installer::admin', [
+                'error' => 'Failed to create admin user: '.$e->getMessage(),
+                'formData' => $request->except('password', 'password_confirmation'),
+            ]);
         }
     }
 

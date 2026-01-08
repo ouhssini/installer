@@ -27,8 +27,18 @@ class AppConfigController extends Controller
             $initialized = $this->environment->initializeFromExample();
 
             if (!$initialized) {
-                return back()->withErrors([
-                    'env' => 'Failed to create .env file. Please ensure the package is properly installed.',
+                return view('installer::app-config', [
+                    'error' => 'Failed to create .env file. Please ensure the package is properly installed.',
+                    'currentConfig' => [
+                        'app_name' => 'Laravel',
+                        'app_env' => 'local',
+                        'app_debug' => 'true',
+                        'app_timezone' => 'UTC',
+                        'app_url' => 'http://localhost',
+                        'app_locale' => 'en',
+                    ],
+                    'availableLocales' => $this->getAvailableLocales(),
+                    'timezones' => $this->getTimezones(),
                 ]);
             }
 

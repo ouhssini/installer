@@ -6,6 +6,12 @@
 <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Server Requirements</h2>
 
+    @if(isset($error))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <strong>Error:</strong> {{ $error }}
+        </div>
+    @endif
+
     <div class="space-y-6">
         <!-- PHP Version -->
         <div class="border rounded-lg p-4">

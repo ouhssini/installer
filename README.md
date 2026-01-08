@@ -9,13 +9,17 @@ A professional WordPress-like installer wizard for Laravel 11+ applications with
 ## ✨ Features
 
 - 🎨 **Beautiful UI** - Clean, modern interface with TailwindCSS
-- 🔐 **Envato Integration** - Real Envato API v3 purchase code verification
+- 🔐 **Envato Integration** - Real Envato API v3 purchase code verification with dev mode
 - ✅ **Requirements Check** - Automatic PHP version, extensions, and permissions validation
-- 🗄️ **Database Setup** - Interactive database configuration with connection testing
-- 👤 **Admin Creation** - Secure admin account setup with role assignment
-- 🔒 **Security First** - CSRF protection, input validation, password hashing
-- 🚀 **One-Click Install** - Complete installation in minutes
+- 🗄️ **Database Setup** - Interactive database configuration with real-time connection testing
+- 🔄 **Auto Migration** - Automatic database migration during installation
+- 👤 **Admin Creation** - Secure admin account setup with smart role assignment (supports Spatie Permission)
+- 🔒 **Security First** - Stateless forms, secure session handling, password hashing
+- 🚀 **One-Click Install** - Complete installation in 7 steps
 - 🔓 **Recovery Command** - Unlock installer if needed
+- 🧪 **Property Testing** - 39,000+ assertions with property-based tests
+- 🔧 **Step Validation** - Prevents accessing steps out of order
+- 💾 **File-First Storage** - Works before database setup
 
 ## 📋 Requirements
 
@@ -91,15 +95,43 @@ To enable Envato purchase code verification:
 
 ```env
 LICENSE_ENABLED=true
+LICENSE_DEV_MODE=false
 ENVATO_PERSONAL_TOKEN=your-personal-token-here
 ENVATO_ITEM_ID=12345678  # Optional: Your CodeCanyon item ID
 ```
 
+#### Development Mode
+
+For development/testing without real Envato API calls:
+
+```env
+LICENSE_ENABLED=true
+LICENSE_DEV_MODE=true
+```
+
+Then use the test purchase code: `dev-test-code-12345678-1234`
+
+#### Skip License Step
+
+To completely skip license verification:
+
+```env
+LICENSE_ENABLED=false
+```
+
 ### 2. Middleware Setup
 
-The installer automatically registers global middleware to protect all routes. When the application is not installed, all requests (including `/`) will redirect to the installer.
+The installer automatically registers:
 
-No manual middleware configuration is required - it works out of the box!
+1. **Custom `installer` middleware group** (no EncryptCookies/StartSession) - Allows installation before `APP_KEY` exists
+2. **Global `EnsureInstalled` middleware** - Redirects all routes to `/install` until installation completes
+
+**Key Architecture:**
+- Installer routes use custom middleware without session/cookie encryption
+- All forms are stateless (no CSRF tokens, no `old()` helpers)
+- Database drivers (session, cache, queue) switch to `database` automatically after installation
+
+No manual middleware configuration required - works out of the box!
 
 ### 3. Configuration Options
 
@@ -114,16 +146,25 @@ return [
     
     'requirements' => [
         'php' => '8.2',
-        'extensions' => ['pdo', 'openssl', 'mbstring', /* ... */],
+        'extensions' => ['pdo', 'openssl', 'mbstring', 'tokenizer', 'xml', 'ctype', 'json', 'bcmath'],
+        'directories' => ['storage/framework', 'storage/logs', 'bootstrap/cache'],
     ],
     
     'license' => [
         'enabled' => env('LICENSE_ENABLED', true),
+        'dev_mode' => env('LICENSE_DEV_MODE', false),
         'envato_personal_token' => env('ENVATO_PERSONAL_TOKEN', ''),
+        'envato_item_id' => env('ENVATO_ITEM_ID', null),
+    ],
+    
+    'admin' => [
+        'role' => 'admin',
+        'create_role_if_missing' => true,
     ],
     
     'routes' => [
         'prefix' => 'install',
+        'middleware' => 'installer',  // Custom middleware group
         'redirect_after_install' => 'dashboard',
     ],
 ];
@@ -134,13 +175,25 @@ return [
 ### Installation Wizard
 
 1. Navigate to `/install` in your browser
-2. Follow the 6-step wizard:
-   - **Welcome** - Introduction
-   - **Requirements** - System check
-   - **Database** - Database setup
-   - **License** - Purchase code verification
-   - **Admin** - Create admin account
-   - **Finalize** - Complete installation
+2. Follow the 7-step wizard:
+   - **Step 1: Welcome** - Introduction and getting started
+   - **Step 2: App Config** - Set application name, URL, timezone, locale (creates `.env` + `APP_KEY`)
+   - **Step 3: Requirements** - PHP version, extensions, directory permissions check
+   - **Step 4: Database** - Database configuration, connection test, **runs migrations**
+   - **Step 5: License** - Purchase code verification (optional, can be disabled)
+   - **Step 6: Admin** - Create administrator account with role assignment
+   - **Step 7: Finalize** - Switch to database drivers, sync data, lock installer
+
+**Step Validation:**
+- Each step validates that previous steps are completed
+- Attempting to access `/install/admin` before database setup redirects to `/install/database`
+- Ensures proper installation sequence and prevents errors
+
+### Real-Time Validation
+
+- **Database Test Connection** - Verify credentials before saving
+- **License Verification** - Validate purchase code against Envato API before continuing
+- **Requirements Check** - Live status of PHP version, extensions, and permissions
 
 ### Purchase Code Format
 
@@ -218,17 +271,55 @@ The installer uses TailwindCSS. Customize by:
 - ❌ Envato Personal Token
 - ❌ Plain text purchase codes
 
+## 🏗️ Architecture
+
+### Stateless Forms
+
+The installer uses **stateless forms** before `APP_KEY` generation:
+- No CSRF tokens on installer routes
+- No `old()` helpers or `$errors` variables
+- Controllers return views directly with error messages
+- Form values preserved via explicit `$credentials` or `$formData` variables
+
+### File-First Storage
+
+Installation state stored in files, **not database**:
+- `storage/app/.installed` - Installation lock file
+- `storage/app/installer-settings.json` - Step progress and settings
+- Database sync happens in Step 7 (Finalize) to `settings` table
+
+**Why?** Avoids chicken-and-egg problem - installer must work before database exists!
+
+### Migration Timing
+
+**Migrations run in Step 4 (Database)**, not Step 7:
+- Creates `settings` table with `category` and `changeable` columns
+- Creates `users` table before Step 6 (Admin creation)
+- Uses Laravel Schema builder for database-agnostic compatibility
+
+### Smart Admin Role Assignment
+
+Automatically detects and assigns admin role:
+1. Checks for `role` or `roles` column in `users` table
+2. Detects Spatie Permission package (`HasRoles` trait)
+3. Creates role if missing (when `create_role_if_missing=true`)
+4. Assigns appropriate role to admin user
+
 ## 🐛 Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| "Envato Personal Token not configured" | Add `ENVATO_PERSONAL_TOKEN` to `.env` |
+| "MissingAppKeyException" | Normal on first access - installer creates `.env` and generates `APP_KEY` in Step 2 |
+| "Envato Personal Token not configured" | Add `ENVATO_PERSONAL_TOKEN` to `.env` or set `LICENSE_ENABLED=false` |
 | "Invalid purchase code format" | Use UUID format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` |
 | "License verification failed: 401" | Token expired - create new one at [build.envato.com](https://build.envato.com/create-token/) |
-| "Purchase code not found" | Verify code is correct in Envato |
-| Database connection failed | Check credentials, server status, firewall |
+| "Purchase code not found" | Verify code is correct in Envato or enable dev mode |
+| Database connection failed | Check credentials, server status, firewall, ensure database exists |
+| "Table 'users' doesn't exist" | Migrations run in Step 4 - ensure you complete database step before admin creation |
 | Permission errors | Ensure `storage/app` directory is writable: `chmod -R 775 storage` |
-| "Settings table not found" | This error should not occur with v1.1.0+ (uses file storage) |
+| Form inputs lost after error | Fixed in v1.2.0+ - forms now preserve values on validation failure |
+| Can't access step out of order | By design - each step validates previous steps are completed |
+| Step validation not working | Clear browser cache, ensure you're not bypassing middleware |
 
 ## 🧪 Testing
 
@@ -291,7 +382,7 @@ Report security vulnerabilities via [our security policy](../../security/policy)
 
 ## 👥 Credits
 
-- [SoftCortex](https://github.com/Softcortex)
+- [Ouhssini](https://github.com/ouhssini)
 - [All Contributors](../../contributors)
 
 ## 📄 License
