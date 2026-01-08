@@ -131,7 +131,7 @@ class DatabaseController extends Controller
                 'error' => 'Configuration failed: '.$e->getMessage(),
                 'credentials' => $credentials ?? [],
             ]);
-                ]);
+                
         }
     }
 }

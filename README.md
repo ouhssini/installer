@@ -66,6 +66,14 @@ Optionally, publish the views for customization:
 php artisan vendor:publish --tag="installer-views"
 ```
 
+Optionally, publish the settings table migration (if you want to customize it before installation):
+
+```bash
+php artisan vendor:publish --tag="installer-migrations"
+```
+
+> **Note**: Publishing the migration is optional. The installer automatically creates the `settings` table during Step 4 (Database configuration) using Laravel's Schema builder.
+
 **Or publish everything at once:**
 
 ```bash
