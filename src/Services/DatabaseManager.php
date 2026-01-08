@@ -68,9 +68,15 @@ class DatabaseManager
             'engine' => null,
         ]);
 
+        // Set default database connection to mysql
+        Config::set('database.default', 'mysql');
+
         // Reconnect to database
         DB::purge('mysql');
         DB::reconnect('mysql');
+
+        // Set as default connection for subsequent operations
+        DB::setDefaultConnection('mysql');
     }
 
     /**
