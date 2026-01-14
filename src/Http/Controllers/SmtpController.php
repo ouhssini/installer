@@ -61,17 +61,25 @@ class SmtpController extends Controller
                 return redirect()->route('installer.admin');
             }
 
-            // Validate SMTP configuration
-            $validated = $request->validate([
+            $mailer = $request->input('mail_mailer', 'smtp');
+
+            // Conditional validation based on mail driver
+            $rules = [
                 'mail_mailer' => 'required|string|in:smtp,sendmail,mailgun,ses,postmark,log',
-                'mail_host' => 'required|string|max:255',
-                'mail_port' => 'required|numeric|min:1|max:65535',
-                'mail_username' => 'nullable|string|max:255',
-                'mail_password' => 'nullable|string|max:255',
-                'mail_encryption' => 'required|string|in:tls,ssl,none',
                 'mail_from_address' => 'required|email|max:255',
                 'mail_from_name' => 'required|string|max:255',
-            ]);
+            ];
+
+            // Only require SMTP fields for drivers that need them
+            if (!in_array($mailer, ['log', 'sendmail'])) {
+                $rules['mail_host'] = 'required|string|max:255';
+                $rules['mail_port'] = 'required|numeric|min:1|max:65535';
+                $rules['mail_encryption'] = 'required|string|in:tls,ssl,none';
+                $rules['mail_username'] = 'nullable|string|max:255';
+                $rules['mail_password'] = 'nullable|string|max:255';
+            }
+
+            $validated = $request->validate($rules);
 
             Log::info('SMTP Store - Validation passed', [
                 'validated' => $validated,
@@ -80,14 +88,18 @@ class SmtpController extends Controller
             // Update .env file
             $envData = [
                 'MAIL_MAILER' => $validated['mail_mailer'],
-                'MAIL_HOST' => $validated['mail_host'],
-                'MAIL_PORT' => $validated['mail_port'],
-                'MAIL_USERNAME' => $validated['mail_username'] ?? '',
-                'MAIL_PASSWORD' => $validated['mail_password'] ?? '',
-                'MAIL_ENCRYPTION' => $validated['mail_encryption'] === 'none' ? 'null' : $validated['mail_encryption'],
                 'MAIL_FROM_ADDRESS' => $validated['mail_from_address'],
                 'MAIL_FROM_NAME' => $validated['mail_from_name'],
             ];
+
+            // Only set SMTP-specific values if not using log/sendmail
+            if (!in_array($mailer, ['log', 'sendmail'])) {
+                $envData['MAIL_HOST'] = $validated['mail_host'] ?? '';
+                $envData['MAIL_PORT'] = $validated['mail_port'] ?? '587';
+                $envData['MAIL_USERNAME'] = $validated['mail_username'] ?? '';
+                $envData['MAIL_PASSWORD'] = $validated['mail_password'] ?? '';
+                $envData['MAIL_ENCRYPTION'] = ($validated['mail_encryption'] ?? 'tls') === 'none' ? 'null' : ($validated['mail_encryption'] ?? 'tls');
+            }
 
             Log::info('SMTP Store - Writing to .env', [
                 'env_data' => $envData,
