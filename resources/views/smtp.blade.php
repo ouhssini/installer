@@ -18,12 +18,13 @@
         <!-- Mail Mailer -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-                Mail Driver <span class="text-red-500">*</span>
+                Mail Driver
             </label>
             <select
+                id="mail_mailer"
                 name="mail_mailer"
-                required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onchange="toggleSmtpFields()"
             >
                 <option value="smtp" {{ $currentConfig['mail_mailer'] === 'smtp' ? 'selected' : '' }}>SMTP</option>
                 <option value="sendmail" {{ $currentConfig['mail_mailer'] === 'sendmail' ? 'selected' : '' }}>Sendmail</option>
@@ -36,96 +37,94 @@
         </div>
 
         <!-- Mail Host -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                SMTP Host <span class="text-red-500">*</span>
-            </label>
-            <input
-                type="text"
-                name="mail_host"
-                value="{{ $currentConfig['mail_host'] }}"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="smtp.gmail.com"
-            >
-            <p class="mt-1 text-sm text-gray-500">Your SMTP server hostname</p>
-        </div>
+        <div id="smtp_fields_container">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Host
+                </label>
+                <input
+                    type="text"
+                    name="mail_host"
+                    value="{{ $currentConfig['mail_host'] }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="smtp.gmail.com"
+                >
+                <p class="mt-1 text-sm text-gray-500">Your SMTP server hostname</p>
+            </div>
 
-        <!-- Mail Port -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                SMTP Port <span class="text-red-500">*</span>
-            </label>
-            <input
-                type="number"
-                name="mail_port"
-                value="{{ $currentConfig['mail_port'] }}"
-                required
-                min="1"
-                max="65535"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="587"
-            >
-            <p class="mt-1 text-sm text-gray-500">Common ports: 587 (TLS), 465 (SSL), 25 (Plain)</p>
-        </div>
+            <!-- Mail Port -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Port
+                </label>
+                <input
+                    type="number"
+                    name="mail_port"
+                    value="{{ $currentConfig['mail_port'] }}"
+                    min="1"
+                    max="65535"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="587"
+                >
+                <p class="mt-1 text-sm text-gray-500">Common ports: 587 (TLS), 465 (SSL), 25 (Plain)</p>
+            </div>
 
-        <!-- Mail Encryption -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                Encryption <span class="text-red-500">*</span>
-            </label>
-            <select
-                name="mail_encryption"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-                <option value="tls" {{ $currentConfig['mail_encryption'] === 'tls' ? 'selected' : '' }}>TLS</option>
-                <option value="ssl" {{ $currentConfig['mail_encryption'] === 'ssl' ? 'selected' : '' }}>SSL</option>
-                <option value="none" {{ $currentConfig['mail_encryption'] === 'none' || $currentConfig['mail_encryption'] === 'null' ? 'selected' : '' }}>None</option>
-            </select>
-            <p class="mt-1 text-sm text-gray-500">Encryption method for secure connection</p>
-        </div>
+            <!-- Mail Encryption -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Encryption
+                </label>
+                <select
+                    name="mail_encryption"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                    <option value="tls" {{ $currentConfig['mail_encryption'] === 'tls' ? 'selected' : '' }}>TLS</option>
+                    <option value="ssl" {{ $currentConfig['mail_encryption'] === 'ssl' ? 'selected' : '' }}>SSL</option>
+                    <option value="none" {{ $currentConfig['mail_encryption'] === 'none' || $currentConfig['mail_encryption'] === 'null' ? 'selected' : '' }}>None</option>
+                </select>
+                <p class="mt-1 text-sm text-gray-500">Encryption method for secure connection</p>
+            </div>
 
-        <!-- Mail Username -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                SMTP Username
-            </label>
-            <input
-                type="text"
-                name="mail_username"
-                value="{{ $currentConfig['mail_username'] }}"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="your-email@example.com"
-            >
-            <p class="mt-1 text-sm text-gray-500">Your SMTP authentication username (usually your email)</p>
-        </div>
+            <!-- Mail Username -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Username
+                </label>
+                <input
+                    type="text"
+                    name="mail_username"
+                    value="{{ $currentConfig['mail_username'] }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="your-email@example.com"
+                >
+                <p class="mt-1 text-sm text-gray-500">Your SMTP authentication username (usually your email)</p>
+            </div>
 
-        <!-- Mail Password -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                SMTP Password
-            </label>
-            <input
-                type="password"
-                name="mail_password"
-                value="{{ $currentConfig['mail_password'] }}"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="••••••••"
-            >
-            <p class="mt-1 text-sm text-gray-500">Your SMTP authentication password</p>
+            <!-- Mail Password -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Password
+                </label>
+                <input
+                    type="password"
+                    name="mail_password"
+                    value="{{ $currentConfig['mail_password'] }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="••••••••"
+                >
+                <p class="mt-1 text-sm text-gray-500">Your SMTP authentication password</p>
+            </div>
         </div>
 
         <!-- Mail From Address -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-                From Email Address <span class="text-red-500">*</span>
+                From Email Address
             </label>
             <input
                 type="email"
                 name="mail_from_address"
                 value="{{ $currentConfig['mail_from_address'] }}"
-                required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="noreply@example.com"
             >
@@ -135,13 +134,12 @@
         <!-- Mail From Name -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-                From Name <span class="text-red-500">*</span>
+                From Name
             </label>
             <input
                 type="text"
                 name="mail_from_name"
                 value="{{ $currentConfig['mail_from_name'] }}"
-                required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="My Application"
             >
@@ -173,3 +171,24 @@
 @php
     $currentStep = 6;
 @endphp
+
+@push('scripts')
+<script>
+    function toggleSmtpFields() {
+        const mailer = document.getElementById('mail_mailer').value;
+        const smtpFieldsContainer = document.getElementById('smtp_fields_container');
+        
+        // Hide SMTP fields for 'log' and 'sendmail' drivers
+        if (mailer === 'log' || mailer === 'sendmail') {
+            smtpFieldsContainer.style.display = 'none';
+        } else {
+            smtpFieldsContainer.style.display = 'block';
+        }
+    }
+    
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleSmtpFields();
+    });
+</script>
+@endpush
