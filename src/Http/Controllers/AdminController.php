@@ -17,17 +17,13 @@ class AdminController extends Controller
 
     public function index()
     {
-        // Ensure step 5 (License) is completed OR license is disabled
-        $licenseEnabled = config('installer.license.enabled', true);
-        if ($licenseEnabled && !$this->installer->isStepCompleted(5)) {
-            return redirect()->route('installer.license');
-        } elseif (!$licenseEnabled && !$this->installer->isStepCompleted(4)) {
-            // If license disabled, ensure at least step 4 (Database) is completed
-            return redirect()->route('installer.database');
+        // Ensure step 6 (SMTP) is completed
+        if (!$this->installer->isStepCompleted(6)) {
+            return redirect()->route('installer.smtp');
         }
 
-        // Allow access if step 6 is completed (editing) OR it's the next step
-        if (!$this->installer->isStepAccessible(6)) {
+        // Allow access if step 7 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(7)) {
             return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
         }
 
@@ -60,8 +56,8 @@ class AdminController extends Controller
             // Store admin user ID for auto-login
             $this->installer->setSetting('admin_user_id', $userId);
 
-            $this->installer->completeStep(6);
-            $this->installer->setCurrentStep(7);
+            $this->installer->completeStep(7);
+            $this->installer->setCurrentStep(8);
 
             return redirect()->route('installer.finalize');
 

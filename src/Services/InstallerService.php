@@ -174,8 +174,9 @@ class InstallerService
             3 => 'installer.requirements',
             4 => 'installer.database',
             5 => 'installer.license',
-            6 => 'installer.admin',
-            7 => 'installer.finalize',
+            6 => 'installer.smtp',
+            7 => 'installer.admin',
+            8 => 'installer.finalize',
         ];
 
         return $routes[$step] ?? 'installer.welcome';

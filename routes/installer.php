@@ -7,6 +7,7 @@ use SoftCortex\Installer\Http\Controllers\DatabaseController;
 use SoftCortex\Installer\Http\Controllers\FinalizeController;
 use SoftCortex\Installer\Http\Controllers\LicenseController;
 use SoftCortex\Installer\Http\Controllers\RequirementsController;
+use SoftCortex\Installer\Http\Controllers\SmtpController;
 use SoftCortex\Installer\Http\Controllers\WelcomeController;
 
 Route::prefix(config('installer.routes.prefix', 'install'))
@@ -36,11 +37,15 @@ Route::prefix(config('installer.routes.prefix', 'install'))
         Route::post('/license/verify', [LicenseController::class, 'verify'])->name('installer.license.verify');
         Route::post('/license', [LicenseController::class, 'store'])->name('installer.license.store');
 
-        // Step 6: Admin
+        // Step 6: SMTP Configuration (Optional)
+        Route::get('/smtp', [SmtpController::class, 'index'])->name('installer.smtp');
+        Route::post('/smtp', [SmtpController::class, 'store'])->name('installer.smtp.store');
+
+        // Step 7: Admin
         Route::get('/admin', [AdminController::class, 'index'])->name('installer.admin');
         Route::post('/admin', [AdminController::class, 'store'])->name('installer.admin.store');
 
-        // Step 7: Finalize
+        // Step 8: Finalize
         Route::get('/finalize', [FinalizeController::class, 'index'])->name('installer.finalize');
         Route::post('/finalize', [FinalizeController::class, 'store'])->name('installer.finalize.store');
     });

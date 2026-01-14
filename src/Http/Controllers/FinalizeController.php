@@ -14,13 +14,13 @@ class FinalizeController extends Controller
 
     public function index()
     {
-        // Ensure step 6 (Admin) is completed
-        if (!$this->installer->isStepCompleted(6)) {
+        // Ensure step 7 (Admin) is completed
+        if (!$this->installer->isStepCompleted(7)) {
             return redirect()->route('installer.admin');
         }
 
-        // Allow access if step 7 is completed (editing) OR it's the next step
-        if (!$this->installer->isStepAccessible(7)) {
+        // Allow access if step 8 is completed (editing) OR it's the next step
+        if (!$this->installer->isStepAccessible(8)) {
             return redirect()->route($this->installer->getStepRoute($this->installer->getNextAvailableStep()));
         }
 

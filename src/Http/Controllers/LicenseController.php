@@ -84,6 +84,6 @@ class LicenseController extends Controller
         $this->installer->completeStep(5);
         $this->installer->setCurrentStep(6);
 
-        return redirect()->route('installer.admin');
+        return redirect()->route('installer.smtp');
     }
 }
