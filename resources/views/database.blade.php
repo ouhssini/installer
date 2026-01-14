@@ -47,11 +47,8 @@
                         name="run_seeders"
                         value="1"
                         {{ ($credentials['run_seeders'] ?? false) ? 'checked' : '' }}
-                        class="sr-only peer"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                     >
-                    <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 relative">
-                        <div class="absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full transition-all peer-checked:translate-x-full"></div>
-                    </div>
                     <span class="ms-3 text-sm font-medium text-gray-700">
                         Run Database Seeders
                     </span>

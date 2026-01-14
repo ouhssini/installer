@@ -85,30 +85,75 @@ class AppConfigController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'app_name' => 'required|string|max:255',
-            'app_env' => 'required|in:local,production,staging,development',
-            'app_debug' => 'required|boolean',
-            'app_timezone' => 'required|string|max:255',
-            'app_url' => 'required|url',
-            'app_locale' => 'required|string|max:10',
+        \Illuminate\Support\Facades\Log::info('AppConfig Store - Starting', [
+            'all_input' => $request->all(),
+            'app_debug_input' => $request->input('app_debug'),
+            'has_app_debug' => $request->has('app_debug'),
         ]);
 
-        // Update .env file
-        $this->environment->setMultiple([
-            'APP_NAME' => $validated['app_name'],
-            'APP_ENV' => $validated['app_env'],
-            'APP_DEBUG' => $validated['app_debug'] ? 'true' : 'false',
-            'APP_TIMEZONE' => $validated['app_timezone'],
-            'APP_URL' => $validated['app_url'],
-            'APP_LOCALE' => $validated['app_locale'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'app_name' => 'required|string|max:255',
+                'app_env' => 'required|in:local,production,staging,development',
+                'app_debug' => 'nullable|boolean',
+                'app_timezone' => 'required|string|max:255',
+                'app_url' => 'required|url',
+                'app_locale' => 'required|string|max:10',
+            ]);
 
-        // Mark step as completed
-        $this->installer->completeStep(2);
-        $this->installer->setCurrentStep(3);
+            \Illuminate\Support\Facades\Log::info('AppConfig Store - Validation passed', [
+                'validated' => $validated,
+            ]);
 
-        return redirect()->route('installer.requirements');
+            // Handle checkbox - if not present, it means unchecked (false)
+            $appDebug = $request->has('app_debug') && $request->input('app_debug') == '1';
+
+            // Update .env file
+            $envData = [
+                'APP_NAME' => $validated['app_name'],
+                'APP_ENV' => $validated['app_env'],
+                'APP_DEBUG' => $appDebug ? 'true' : 'false',
+                'APP_TIMEZONE' => $validated['app_timezone'],
+                'APP_URL' => $validated['app_url'],
+                'APP_LOCALE' => $validated['app_locale'],
+            ];
+
+            \Illuminate\Support\Facades\Log::info('AppConfig Store - Writing to .env', [
+                'env_data' => $envData,
+                'app_debug_calculated' => $appDebug,
+            ]);
+
+            $this->environment->setMultiple($envData);
+
+            \Illuminate\Support\Facades\Log::info('AppConfig Store - .env written successfully');
+
+            // Verify what was written
+            $verifyAppDebug = $this->environment->get('APP_DEBUG');
+            \Illuminate\Support\Facades\Log::info('AppConfig Store - Verification', [
+                'app_debug_written' => $verifyAppDebug,
+            ]);
+
+            // Mark step as completed
+            $this->installer->completeStep(2);
+            $this->installer->setCurrentStep(3);
+
+            \Illuminate\Support\Facades\Log::info('AppConfig Store - Completed successfully');
+
+            return redirect()->route('installer.requirements');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Illuminate\Support\Facades\Log::error('AppConfig Store - Validation failed', [
+                'errors' => $e->errors(),
+                'input' => $request->all(),
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('AppConfig Store - Exception occurred', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
     }
 
     /**

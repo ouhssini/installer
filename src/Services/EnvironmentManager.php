@@ -112,14 +112,24 @@ class EnvironmentManager
      */
     public function setMultiple(array $values): void
     {
+        \Illuminate\Support\Facades\Log::info('EnvironmentManager - setMultiple called', [
+            'values' => $values,
+            'env_path' => $this->envPath,
+        ]);
+
         // Create backup
         if (File::exists($this->envPath)) {
             File::copy($this->envPath, $this->envPath.'.backup');
+            \Illuminate\Support\Facades\Log::info('EnvironmentManager - Backup created');
         }
 
         $content = File::exists($this->envPath) ? File::get($this->envPath) : '';
         $lines = explode("\n", $content);
         $updatedKeys = [];
+
+        \Illuminate\Support\Facades\Log::info('EnvironmentManager - Current .env has lines', [
+            'line_count' => count($lines),
+        ]);
 
         // Update existing keys
         foreach ($lines as $index => $line) {
@@ -136,8 +146,15 @@ class EnvironmentManager
                 $lineKey = trim($lineKey);
 
                 if (isset($values[$lineKey])) {
+                    $oldValue = $lines[$index];
                     $lines[$index] = $lineKey.'='.$this->quoteValue($values[$lineKey]);
                     $updatedKeys[] = $lineKey;
+                    
+                    \Illuminate\Support\Facades\Log::info('EnvironmentManager - Updated key', [
+                        'key' => $lineKey,
+                        'old_line' => $oldValue,
+                        'new_line' => $lines[$index],
+                    ]);
                 }
             }
         }
@@ -145,12 +162,23 @@ class EnvironmentManager
         // Append new keys
         foreach ($values as $key => $value) {
             if (! in_array($key, $updatedKeys)) {
-                $lines[] = $key.'='.$this->quoteValue($value);
+                $newLine = $key.'='.$this->quoteValue($value);
+                $lines[] = $newLine;
+                
+                \Illuminate\Support\Facades\Log::info('EnvironmentManager - Added new key', [
+                    'key' => $key,
+                    'line' => $newLine,
+                ]);
             }
         }
 
         // Write back to file
-        File::put($this->envPath, implode("\n", $lines));
+        $finalContent = implode("\n", $lines);
+        File::put($this->envPath, $finalContent);
+        
+        \Illuminate\Support\Facades\Log::info('EnvironmentManager - File written successfully', [
+            'total_lines' => count($lines),
+        ]);
     }
 
     /**

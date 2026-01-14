@@ -92,9 +92,11 @@ class DatabaseController extends Controller
             $this->database->writeConfiguration($credentials);
             Log::info('Database configuration written');
 
-            // Run migrations
+            // Run migrations with optional seeders
             Log::info('Running database migrations');
-            $runSeeders = $request->input('run_seeders', false);
+            $runSeeders = $request->has('run_seeders') && $request->input('run_seeders') == '1';
+            Log::info('Seeder option', ['run_seeders' => $runSeeders]);
+            
             $result = $this->database->runMigrations($runSeeders);
 
             if (! $result['success']) {
