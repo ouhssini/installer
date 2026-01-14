@@ -59,6 +59,8 @@ test('database view exists and contains form fields', function () {
     expect($content)->toContain('name="database"');
     expect($content)->toContain('name="username"');
     expect($content)->toContain('name="password"');
+    expect($content)->toContain('name="run_seeders"');
+    expect($content)->toContain('Run Database Seeders');
 });
 
 test('license view exists and contains purchase code field', function () {
@@ -119,4 +121,32 @@ test('all views include CSRF token', function () {
         $content = $view->render();
         expect($content)->toContain('csrf');
     }
+});
+
+test('app config view contains app_env select with correct options', function () {
+    expect(View::exists('installer::app-config'))->toBeTrue();
+
+    // Share errors with view
+    View::share('errors', session()->get('errors', new \Illuminate\Support\ViewErrorBag));
+
+    $view = view('installer::app-config', [
+        'currentConfig' => [
+            'app_name' => 'Test App',
+            'app_env' => 'local',
+            'app_debug' => 'true',
+            'app_timezone' => 'UTC',
+            'app_url' => 'http://localhost',
+            'app_locale' => 'en',
+        ],
+        'availableLocales' => ['en' => 'English'],
+        'timezones' => ['UTC' => 'UTC'],
+    ]);
+
+    $content = $view->render();
+
+    expect($content)->toContain('name="app_env"');
+    expect($content)->toContain('value="local"');
+    expect($content)->toContain('value="development"');
+    expect($content)->toContain('value="staging"');
+    expect($content)->toContain('value="production"');
 });

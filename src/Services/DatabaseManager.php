@@ -82,7 +82,7 @@ class DatabaseManager
     /**
      * Run database migrations
      */
-    public function runMigrations(): array
+    public function runMigrations(bool $runSeeders = false): array
     {
         $output = [];
 
@@ -94,18 +94,25 @@ class DatabaseManager
             }
 
             // Run all migrations
-            Artisan::call('migrate', ['--force' => true]);
+            $options = ['--force' => true];
+            if ($runSeeders) {
+                $options['--seed'] = true;
+            }
+            
+            Artisan::call('migrate', $options);
             $output[] = Artisan::output();
 
             return [
                 'success' => true,
                 'output' => $output,
+                'seeders_run' => $runSeeders,
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
                 'output' => $output,
                 'error' => $e->getMessage(),
+                'seeders_run' => false,
             ];
         }
     }

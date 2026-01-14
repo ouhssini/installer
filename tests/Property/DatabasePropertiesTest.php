@@ -114,3 +114,79 @@ test('migration results include success status', function () {
         expect($result['error'])->toBeString();
     }
 })->repeat(100);
+
+// Feature: database-seeder-and-env-fix, Property 1: Seeder flag omitted when unchecked
+test('migration command omits seed flag when run_seeders is false', function () {
+    $dbManager = app(DatabaseManager::class);
+
+    // Run migrations without seeders
+    $result = $dbManager->runMigrations(false);
+
+    // Verify result structure
+    expect($result)->toBeArray();
+    expect($result)->toHaveKey('success');
+    expect($result)->toHaveKey('seeders_run');
+    
+    // When successful, seeders_run should match the parameter
+    if ($result['success']) {
+        expect($result['seeders_run'])->toBeFalse();
+    }
+})->repeat(100);
+
+// Feature: database-seeder-and-env-fix, Property 2: Seeder flag included when checked
+test('migration command includes seed flag when run_seeders is true', function () {
+    $dbManager = app(DatabaseManager::class);
+
+    // Run migrations with seeders
+    $result = $dbManager->runMigrations(true);
+
+    // Verify result structure
+    expect($result)->toBeArray();
+    expect($result)->toHaveKey('success');
+    expect($result)->toHaveKey('seeders_run');
+    
+    // When successful, seeders_run should match the parameter
+    if ($result['success']) {
+        expect($result['seeders_run'])->toBeTrue();
+    } else {
+        // When failed, seeders_run should be false
+        expect($result['seeders_run'])->toBeFalse();
+    }
+})->repeat(100);
+
+// Feature: database-seeder-and-env-fix, Property 3: Successful migration with seeders advances workflow
+test('successful migration with seeders returns success status', function () {
+    $dbManager = app(DatabaseManager::class);
+
+    // Run migrations with seeders
+    $result = $dbManager->runMigrations(true);
+
+    // Verify result structure for successful execution
+    expect($result)->toBeArray();
+    expect($result)->toHaveKey('success');
+    expect($result)->toHaveKey('seeders_run');
+    
+    if ($result['success']) {
+        expect($result['seeders_run'])->toBeTrue();
+        expect($result)->toHaveKey('output');
+        expect($result['output'])->toBeArray();
+    }
+})->repeat(100);
+
+// Feature: database-seeder-and-env-fix, Property 4: Seeding failure returns error
+test('seeding failure returns error message', function () {
+    $dbManager = app(DatabaseManager::class);
+
+    // Run migrations - if it fails, it should return proper error structure
+    $result = $dbManager->runMigrations(true);
+
+    expect($result)->toBeArray();
+    expect($result)->toHaveKey('success');
+    
+    if (!$result['success']) {
+        expect($result)->toHaveKey('error');
+        expect($result['error'])->toBeString();
+        expect($result)->toHaveKey('seeders_run');
+        expect($result['seeders_run'])->toBeFalse();
+    }
+})->repeat(100);

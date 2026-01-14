@@ -39,6 +39,25 @@
                 <label for="password" class="block text-gray-700 font-semibold mb-2">Database Password</label>
                 <input type="password" name="password" id="password" value="{{ $credentials['password'] ?? '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
+
+            <div>
+                <label class="flex items-center cursor-pointer">
+                    <input
+                        type="checkbox"
+                        name="run_seeders"
+                        value="1"
+                        {{ ($credentials['run_seeders'] ?? false) ? 'checked' : '' }}
+                        class="sr-only peer"
+                    >
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 relative">
+                        <div class="absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full transition-all peer-checked:translate-x-full"></div>
+                    </div>
+                    <span class="ms-3 text-sm font-medium text-gray-700">
+                        Run Database Seeders
+                    </span>
+                </label>
+                <p class="mt-1 text-sm text-gray-500">Populate the database with initial data after running migrations</p>
+            </div>
         </div>
 
         <div class="mt-6">

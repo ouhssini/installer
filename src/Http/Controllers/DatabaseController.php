@@ -71,6 +71,7 @@ class DatabaseController extends Controller
             'database' => 'required|string',
             'username' => 'required|string',
             'password' => 'nullable|string',
+            'run_seeders' => 'nullable|boolean',
         ]);
 
         try {
@@ -93,7 +94,8 @@ class DatabaseController extends Controller
 
             // Run migrations
             Log::info('Running database migrations');
-            $result = $this->database->runMigrations();
+            $runSeeders = $request->input('run_seeders', false);
+            $result = $this->database->runMigrations($runSeeders);
 
             if (! $result['success']) {
                 Log::error('Migration failed', [
