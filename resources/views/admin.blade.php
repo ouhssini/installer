@@ -40,7 +40,7 @@
         </div>
 
         <div class="flex justify-between mt-8">
-            <a href="{{ route('installer.license') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-8 rounded-lg transition duration-200">
+            <a href="{{ route('installer.smtp') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-8 rounded-lg transition duration-200">
                 Back
             </a>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200">

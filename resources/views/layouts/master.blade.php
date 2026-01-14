@@ -37,6 +37,7 @@
                             ['name' => 'Requirements', 'route' => 'installer.requirements'],
                             ['name' => 'Database', 'route' => 'installer.database'],
                             ['name' => 'License', 'route' => 'installer.license'],
+                            ['name' => 'SMTP', 'route' => 'installer.smtp'],
                             ['name' => 'Admin', 'route' => 'installer.admin'],
                             ['name' => 'Finalize', 'route' => 'installer.finalize'],
                         ];
@@ -83,7 +84,7 @@
                             </div>
                         </div>
 
-                        @if($index < 6)
+                        @if($index < 7)
                             <div class="flex-1 h-1
                                 {{ $isCompleted ? 'bg-green-600' : (($index + 1) < $currentStep ? 'bg-blue-600' : 'bg-gray-300') }}">
                             </div>
